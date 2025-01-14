@@ -1,0 +1,50 @@
+.scrollbar-hide {
+  scrollbar-width: none; 
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;   
+}
+
+select option {
+  padding: 12px;
+  font-size: 0.95rem;
+  background-color: white;
+  color: #374151;
+}
+
+select option:hover,
+select option:focus {
+  background-color: #FEF2F2 !important;
+  color: #DC2626;
+}
+
+select option:checked {
+  background-color: #FEF2F2;
+  color: #DC2626;
+}
+
+select {
+  -moz-appearance: none;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+select::-webkit-scrollbar {
+  width: 8px;
+}
+
+select::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+select::-webkit-scrollbar-thumb {
+  background: #E5E7EB;
+  border-radius: 4px;
+}
+
+select::-webkit-scrollbar-thumb:hover {
+  background: #DC2626;
+}
