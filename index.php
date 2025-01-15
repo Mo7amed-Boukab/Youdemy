@@ -8,8 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
 <body class="bg-white">
-    <nav class="bg-white border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav class="bg-white border-b fixed top-0 left-0 right-0  shadow-md z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
             <div class="flex justify-between h-16 items-center">
                 <div>
                     <a href="index.php" class="flex items-center space-x-2">
@@ -323,6 +323,7 @@
     </a>
 </div>
 
+
 <!-------------------------------------------------- Footer Section ------------------------------------------------->
 <footer class="bg-gray-900 text-gray-300 pt-16 pb-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -408,8 +409,6 @@
         </div>
     </div>
 </footer>
+<script src="./assets/js/script.js"></script>
 </body>
-
-  <script src="./assets/js/script.js"></script>
-
 </html>
