@@ -48,3 +48,27 @@ select::-webkit-scrollbar-thumb {
 select::-webkit-scrollbar-thumb:hover {
   background: #DC2626;
 }
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #E5E7EB #F3F4F6;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #F3F4F6;
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #E5E7EB;
+  border-radius: 8px;
+  border: 2px solid #F3F4F6;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #D1D5DB;
+}
