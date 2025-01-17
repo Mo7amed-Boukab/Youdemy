@@ -39,7 +39,7 @@
                 </p>
 
             </div>
-            <form action="signup.php" method="POST" class="space-y-6">
+            <form action="" method="POST" class="space-y-6">
                 <!-- username ---------------------------------------------------------------------------------- -->
                 <div>
                     <div class="relative">

@@ -26,22 +26,30 @@
             $error = $return['message'];
         } 
         else {
-            if($return['role'] === 'teacher') {
+            if($return['role'] === 'teacher' && $return['status'] === 'pending') {
+              $error = "This account is not activated yet!";
+              header('Location: '. $_SERVER['PHP_SELF']);
+              exit;
+            }
+            else if($return['role'] === 'teacher' && $return['status'] === 'active') {
                 session_start();
                 $_SESSION['teacher_id'] = $return['user_id'];
-                header('Location: teacher.php');
+                $_SESSION['teacher_name'] = $return['user_name'];
+                header('Location: ../teacher/teacher.php');
                 exit;
             } 
             else if($return['role'] === 'student') {
                 session_start();  
                 $_SESSION['student_id'] = $return['user_id'];
-                header('Location: profile.php');
+                $_SESSION['student_name'] = $return['user_name'];
+                header('Location: ../student/student.php');
                 exit;  
             }
-            else {
+            else if($return['role'] === 'admin') {
                 session_start();
                 $_SESSION['admin_id'] = $return['user_id'];
-                header('Location: admin.php');
+                $_SESSION['admin_name'] = $return['user_name'];
+                header('Location: ../admin/admin.php');
                 exit;
             }
       } 

@@ -7,12 +7,16 @@
   $conn = $db->connect();
   $user = new User($conn);
   $error = '';
-
   if(isset($_POST['signup'])){
     $username = htmlspecialchars(trim($_POST['username']));
     $email = htmlspecialchars(trim($_POST['email']));
     $password = htmlspecialchars(trim($_POST['password']));
     $role = htmlspecialchars(trim($_POST['role']));
+    if ($role === 'teacher') {
+      $status = 'pending'; 
+    } else {
+      $status = 'active';
+    }
 
     if(empty($username) || empty($email) || empty($password) || empty($role)) {
       $error = "All fields are required!";
@@ -26,8 +30,9 @@
       $error = "Password must be at least 8 characters";
       exit();
     }
+    
     else{
-      $return = $user->signup($username,$email,$password,$role);
+      $return = $user->signup($username,$email,$password,$role,$status);
       if (isset($return['message'])) {
         $error = $return['message']; 
         exit();
