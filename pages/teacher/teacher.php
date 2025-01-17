@@ -1,9 +1,15 @@
+<?php 
+    session_start();
+    $teacher_id = $_SESSION['teacher_id'];
+    $teacher_name = $_SESSION['teacher_name'];
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Youdemy - Dashboard Enseignant</title>
+    <title>Youdemy - Teacher Dashboard </title>
     <link rel="stylesheet" href="../../assets/css/styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -68,7 +74,7 @@
                     </svg>
                     <span>Profile</span>
                 </a>
-                <a href="#" class="flex items-center space-x-3 p-3 hover:bg-gray-800 rounded-lg text-red-500">
+                <a href="./../auth/logout.php" class="flex items-center space-x-3 p-3 hover:bg-gray-800 rounded-lg text-red-500">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                     </svg>
@@ -82,7 +88,7 @@
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 mt-16 lg:mt-0">
             <div class="mb-4 lg:mb-0">
                 <h1 class="text-2xl font-bold">Tableau de bord</h1>
-                <p class="text-gray-600">Bienvenue, mohamed</p>
+                <p class="text-gray-600">Bienvenue, <?php echo $teacher_name; ?></p>
             </div>
             <div class="flex space-x-4">
                 <button id="newCourse" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center space-x-2">
@@ -454,7 +460,7 @@
             </form>
         </div>
     </div>
-
+<!-- --------------------------------------------------------------------------------------------------- -->
 
     <script>
 
