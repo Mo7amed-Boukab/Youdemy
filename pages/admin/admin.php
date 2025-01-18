@@ -73,7 +73,7 @@
                     </svg>
                     <span>Users Management</span>
                 </a>
-                <a href="#" id="courseManagement" class="flex items-center space-x-3 p-3 hover:bg-gray-800 rounded-lg">
+                <a href="#" id="coursesManagement" class="flex items-center space-x-3 p-3 hover:bg-gray-800 rounded-lg">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                     </svg>
@@ -420,6 +420,62 @@
               
         </div>
 
+<!-- ----------------------------------------------------- Courses Management ------------------------------------------------------ -->
+<div id="tableCourses" class="grid grid-cols-1 gap-8 mb-8 hidden">
+    <div class="bg-white p-6 rounded-lg shadow-sm border">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold">Courses Management</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teacher</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Students</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">Web Development Bootcamp</div>
+                                    <div class="text-sm text-gray-500"> 2h : 30min</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                              Web Development
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900"> mohamed</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">15</div>
+                        </td>
+                    
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+                            <button class="text-red-600 hover:text-red-900">Delete</button>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <script>
   
             const menuButton = document.getElementById('menuButton');
@@ -447,6 +503,7 @@
                 seeAllUsers_section.style.display = 'none';
                 listAllTeachers.style.display = 'block';
                 listAllUsers.style.display = 'none';
+                tableCourses.style.display = 'none';
             });
 
             seeAllUsersBtn.addEventListener('click', () => {
@@ -454,6 +511,7 @@
                 seeAllUsers_section.style.display = 'none';
                 listAllTeachers.style.display = 'none';
                 listAllUsers.style.display = 'block';
+                tableCourses.style.display = 'none';
             });
 
             usersManagement.addEventListener('click', () => {
@@ -461,15 +519,28 @@
                 seeAllUsers_section.style.display = 'none';
                 listAllTeachers.style.display = 'none';
                 listAllUsers.style.display = 'block';
+                tableCourses.style.display = 'none';
             });
 
             teacherValidation.addEventListener('click', () => {
-              seeAllTeachers_section.style.display = 'none';
+                seeAllTeachers_section.style.display = 'none';
                 seeAllUsers_section.style.display = 'none';
                 listAllUsers.style.display = 'none';
                 listAllTeachers.style.display = 'block';
+                tableCourses.style.display = 'none';
           
-            });          
+            }); 
+            
+            const tableCourses = document.getElementById('tableCourses');
+            const coursesManagement = document.getElementById('coursesManagement');
+
+            coursesManagement.addEventListener('click',()=>{
+              tableCourses.style.display = 'block';
+              seeAllTeachers_section.style.display = 'none';
+              seeAllUsers_section.style.display = 'none';
+              listAllUsers.style.display = 'none';
+              listAllTeachers.style.display = 'none';
+            })
 </script>
 
 </body>
