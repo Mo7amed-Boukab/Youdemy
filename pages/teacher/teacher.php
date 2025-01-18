@@ -2,6 +2,18 @@
     session_start();
     $teacher_id = $_SESSION['teacher_id'];
     $teacher_name = $_SESSION['teacher_name'];
+
+    require_once "../../config/conn.php";
+    $db = new Database();
+    $conn = $db->connect();
+
+    require_once "../../models/teacher.php";
+    $teacher = new Teacher($conn);
+    $allCourses = $teacher->getAllCourses($teacher_id);
+    $lastCourses = $teacher->getLastCourses($teacher_id);
+
+    require_once "../../controllers/teacherController.php";
+   
 ?>
 
 <!DOCTYPE html>
@@ -159,7 +171,9 @@
                         </svg>
                     </button>
                 </div>
+                <?php foreach($lastCourses AS $course): ?>
                 <div class="space-y-4">
+              
                     <div class="flex items-center space-x-4 p-4 hover:bg-gray-50 rounded-lg transition">
                         <div class="p-3 bg-red-100 rounded-lg">
                             <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -167,26 +181,18 @@
                             </svg>
                         </div>
                         <div class="flex-1">
-                            <h3 class="font-semibold">Laravel - Formation Complète</h3>
-                            <p class="text-sm text-gray-600">Added 2 hours ago</p>
+                            <h3 class="font-semibold"><?php echo $course['title']; ?></h3>
+                            <p class="text-sm text-gray-600"><?php echo $course['created_at']; ?></p>
                         </div>
+                      <?php if($course['status'] === 'Published'): ?>
                         <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">Published</span>
-                    </div>
-                    <!-- --------------------------------------------------------------------------------- -->
-                    <div class="flex items-center space-x-4 p-4 hover:bg-gray-50 rounded-lg transition">
-                        <div class="p-3 bg-red-100 rounded-lg">
-                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253"/>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-semibold">React JS Masterclass</h3>
-                            <p class="text-sm text-gray-600">Added 1 day ago</p>
-                        </div>
+                     <?php elseif($course['status'] === 'Draft'): ?>
                         <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">Draft</span>
-                    </div>
-                </div>
+                     <?php endif; ?>
+                    </div>            
             </div>
+            <?php endforeach; ?>
+  </div>
           <!-- --------------------------------------------- Last Enrollments ------------------------------------------------- -->
             <div class="bg-white rounded-lg shadow-sm border p-4 lg:p-6">
                 <div class="flex justify-between items-center mb-6">
@@ -198,6 +204,7 @@
                         </svg>
                     </button>
                 </div>
+            
                 <div class="space-y-4">
                     <div class="flex items-center space-x-4 p-4 hover:bg-gray-50 rounded-lg transition">
                         <div class="p-3 bg-red-100 rounded-lg">
@@ -252,7 +259,7 @@
                         <tr>
                             <th class="px-6 py-3 text-left text-gray-600">Course Title</th>
                             <th class="px-6 py-3 text-left text-gray-600">Level</th>
-                            <th class="px-6 py-3 text-left text-gray-600">Students</th>
+                            <th class="px-6 py-3 text-left text-gray-600">Category</th>
                             <th class="hidden md:table-cell px-6 py-3 text-left text-gray-600">Duree</th>
                             <th class="px-6 py-3 text-left text-gray-600">Status</th>
                             <th class="px-6 py-3 text-left text-gray-600">Actions</th>
@@ -260,31 +267,44 @@
                     </thead>
       
                     <tbody class="divide-y" id="coursesTable">
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">Laravel - Formation Complète</td>
-                            <td class="px-6 py-4">Advanced</td>
-                            <td class="px-6 py-4">120</td>
-                            <td class="px-6 py-4">2h 30min</td>
-                            <td class="px-6 py-4">
-                                <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                                Published
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="flex space-x-3">
-                                    <button class="text-blue-600 hover:text-blue-800">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                                        </svg>
-                                    </button>
-                                    <button class="text-red-600 hover:text-red-800">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                            <?php foreach($allCourses AS $course): ?>
+                              <tr class="hover:bg-gray-50">
+                                  <td class="px-6 py-4"><?php echo $course['title']; ?></td>
+                                  <td class="px-6 py-4"><?php echo $course['level']; ?></td>
+                                  <td class="px-6 py-4"><?php echo $course['category']; ?></td>
+                                  <td class="px-6 py-4"><?php echo $course['duration']; ?></td>
+                                  <td class="px-6 py-4">
+                                    <?php if($course['status'] == 'Published'): ?>
+                                      <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                                          Published
+                                      </span>
+                                    <?php elseif($course['status'] == 'Draft'): ?>
+                                      <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
+                                          Draft
+                                      </span>
+                                    <?php endif; ?>
+                                  </td>
+                                  <td class="px-6 py-4">
+                                      <div class="flex space-x-3">
+                                          <button class="text-blue-600 hover:text-blue-800">
+                                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                              </svg>
+                                          </button>
+                                          <button class="text-red-600 hover:text-red-800">
+                                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                              </svg>
+                                          </button>
+                                          <button class="text-green-600 hover:text-green-800">
+                                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                              </svg>
+                                          </button>
+                                      </div>
+                                  </td>
+                              </tr>
+                            <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
@@ -347,7 +367,7 @@
                     </svg>
                 </button>
             </div>
-            <form class="p-6">
+            <form class="p-6" action="" method="POST">
                 <div class="mb-6">
                     <div class="space-y-4">
                         <div>
@@ -356,6 +376,7 @@
                             </label>
                             <input 
                                 type="text" 
+                                name="title"
                                 required
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                             >
@@ -366,30 +387,57 @@
                             </label>
                             <input 
                                 type="text" 
+                                name="description"
                                 required
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                             >
                         </div>
-                      
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">
-                              Content 
-                            </label>
-                            <textarea 
-                                required
-                                rows="4" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" -->
-                            </textarea>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                              Video URL
+                              Image
                             </label>
                             <input 
                                 type="text" 
+                                name="image_url"
                                 required
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                             >
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Content Type
+                            </label>
+                                <select 
+                                    id="contentType" 
+                                    required 
+                                    name="content_type"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    onchange="toggleContentInputs()"
+                                >
+                                    <option value="video">video</option>
+                                    <option value="document">document</option>
+                                </select>
+                        </div>
+                        <div id="videoInput" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Video URL
+                            </label>
+                            <input 
+                                type="text" 
+                                name="video_url"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                            >
+                        </div>
+                        <div id="textInput" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Content
+                            </label>
+                            <textarea 
+                                name="content"
+                                rows="4" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                            </textarea>
                         </div>
                     </div>
                 </div>
@@ -399,22 +447,22 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 Catégorie
                             </label>
-                            <select required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                                <option value="web">Web Development</option>
-                                <option value="mobile">Cyber Security</option>
-                                <option value="data">Data Science</option>
-                                <option value="design">Design</option>
+                            <select required name="category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                                <option value="1" selected>Web Development</option>
+                                <option value="2">Design</option>
+                                <option value="3">Marketing</option>
                             </select>
                         </div>
-                        <div>
+                        <!-- <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 Tags
                             </label>
                             <input 
                                 type="text" 
+                                name="tags"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                             >
-                        </div>
+                        </div> -->
                     </div>
                 </div>
                 <div class="mb-6">
@@ -424,7 +472,8 @@
                                 Duration
                             </label>
                             <input 
-                                type="number" 
+                                type="time" 
+                                name="duration"
                                 required
                                 min="1"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
@@ -434,8 +483,8 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 Level
                             </label>
-                            <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                                <option value="beginner">Beginner</option>
+                            <select name="level" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                                <option value="beginner selected">Beginner</option>
                                 <option value="intermediate">Intermediate</option>
                                 <option value="advanced">Advanced</option>
                             </select>
@@ -443,15 +492,18 @@
                     </div>
                 </div>
                 <div class="flex justify-end space-x-4">
+                  <input type="hidden" name="teacher_id" value="<?php echo $teacher_id ;?>">
                     <button 
+                        type="submit"
                         type="button"
-                        id="cancelButton"
+                        name="save_draft"
                         class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
                     >
                         Save Draft
                     </button>
                     <button 
                         type="submit"
+                        name="publish_course"
                         class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
                     >
                         Publish Course
@@ -490,7 +542,6 @@
         const addCourseButton = document.getElementById('newCourse');
         const modal = document.getElementById('addCourseModal');
         const closeModal = document.getElementById('closeModal');
-        const cancelButton = document.getElementById('cancelButton');
 
         function openModal() {
             modal.classList.remove('hidden');
@@ -504,7 +555,6 @@
 
         addCourseButton.addEventListener('click', openModal);
         closeModal.addEventListener('click', hideModal);
-        cancelButton.addEventListener('click', hideModal);
 
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
@@ -541,7 +591,21 @@
           studentsList.style.display = 'block';
           lastCrsEnroll.style.display = 'none';
         });
+  //  -------------------------------------------------------------------
+  
+  function toggleContentInputs() {
+        const contentType = document.getElementById('contentType').value;
+        const videoInput = document.getElementById('videoInput');
+        const textInput = document.getElementById('textInput');
 
+        if (contentType === 'video') {
+            videoInput.classList.remove('hidden');
+            textInput.classList.add('hidden');
+        } else if (contentType === 'document') {
+            textInput.classList.remove('hidden');
+            videoInput.classList.add('hidden');
+        }
+    }
         
 
     </script>
