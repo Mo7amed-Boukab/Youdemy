@@ -8,12 +8,18 @@
     $conn = $db->connect();
 
     require_once "../../models/teacher.php";
+    require_once "../../controllers/teacherController.php";
+
     $teacher = new Teacher($conn);
     $allCourses = $teacher->getAllCourses($teacher_id);
     $lastCourses = $teacher->getLastCourses($teacher_id);
+    
+    require_once "../../models/courses.php";
 
-    require_once "../../controllers/teacherController.php";
-   
+    $courses = new Courses($conn);
+    $enrollments = $courses->getEnrollments();
+    $lastEnrollments = $courses->getLastEnrollments();
+
 ?>
 
 <!DOCTYPE html>
@@ -107,7 +113,7 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
-                    <span>Nouveau Cours</span>
+                    <span>Add Course</span>
                 </button>
             </div>
         </div>
@@ -190,9 +196,10 @@
                         <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">Draft</span>
                      <?php endif; ?>
                     </div>            
-            </div>
-            <?php endforeach; ?>
-  </div>
+               </div>
+              <?php endforeach; ?>
+       </div>
+
           <!-- --------------------------------------------- Last Enrollments ------------------------------------------------- -->
             <div class="bg-white rounded-lg shadow-sm border p-4 lg:p-6">
                 <div class="flex justify-between items-center mb-6">
@@ -204,7 +211,8 @@
                         </svg>
                     </button>
                 </div>
-            
+
+            <?php foreach($lastEnrollments AS $enroll): ?>
                 <div class="space-y-4">
                     <div class="flex items-center space-x-4 p-4 hover:bg-gray-50 rounded-lg transition">
                         <div class="p-3 bg-red-100 rounded-lg">
@@ -213,27 +221,16 @@
                             </svg>
                         </div>
                         <div class="flex-1">
-                            <h3 class="font-semibold">Med Boukab</h3>
-                            <p class="text-sm text-gray-600">Enrolled in Laravel - Formation Complète</p>
-                            <p class="text-sm text-gray-500">2 hours ago</p>
+                            <h3 class="font-semibold"><?php echo $enroll['name']; ?></h3>
+                            <p class="text-sm text-gray-600"><?php echo $enroll['course_title']; ?></p>
+                            <p class="text-sm text-gray-500"><?php echo $enroll['enrolled_at'] ?></p>
                         </div>
-                    </div>
-                      <!-- --------------------------------------------------------------------------------- -->
-                    <div class="flex items-center space-x-4 p-4 hover:bg-gray-50 rounded-lg transition">
-                        <div class="p-3 bg-red-100 rounded-lg">
-                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-semibold">Souhail</h3>
-                            <p class="text-sm text-gray-600">Enrolled in React JS Masterclass</p>
-                            <p class="text-sm text-gray-500">5 hours ago</p>
-                        </div>
-                    </div>
+                    </div>      
                 </div>
-            </div>
+            <?php endforeach; ?>  
+          
         </div>
+    </div>
   <!-- -------------------------------------------------- All Courses ------------------------------------------------------ -->
         <div id="allCourses" class="bg-white rounded-lg shadow-sm border p-4 lg:p-6 hidden">
             <div  class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 ">
@@ -333,24 +330,14 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y">
+                  <?php foreach($enrollments AS $enroll): ?>
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">Med Boukab</td>
-                            <td class="hidden sm:table-cell px-6 py-4">mohamedbk@gmail.com</td>  
-                            <td class="px-6 py-4">Laravel - The Complete Course</td>
-                            <td class="hidden md:table-cell px-6 py-4">15 Jan 2025</td>
+                            <td class="px-6 py-4"><?php echo $enroll['name'] ?></td>
+                            <td class="hidden sm:table-cell px-6 py-4"><?php echo $enroll['email'] ?></td>  
+                            <td class="px-6 py-4"><?php echo $enroll['course_title'] ?></td>
+                            <td class="hidden md:table-cell px-6 py-4"><?php echo date("d M Y", strtotime($enroll['enrolled_at'])) ?>;</td>
                         </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">souhail</td>
-                            <td class="hidden sm:table-cell px-6 py-4">souhail@gmail.com</td>  
-                            <td class="px-6 py-4">Laravel - The Complete Course</td>
-                            <td class="hidden md:table-cell px-6 py-4">15 Jan 2025</td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">merouan</td>
-                            <td class="hidden sm:table-cell px-6 py-4">merouan@gmail.com</td>  
-                            <td class="px-6 py-4">Laravel - The Complete Course</td>
-                            <td class="hidden md:table-cell px-6 py-4">15 Jan 2025</td>
-                        </tr>
+                <?php endforeach; ?>        
                     </tbody>
                 </table>
             </div>

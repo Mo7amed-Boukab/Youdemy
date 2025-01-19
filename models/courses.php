@@ -56,6 +56,30 @@ class Courses
       return false;
     }
   }
+  public function getEnrollments(){
+    try{
+      $sql = "SELECT enrollments.*, courses.title AS course_title, users.name, users.email FROM enrollments JOIN courses ON enrollments.course_id = courses.id JOIN users ON enrollments.user_id = users.id";
+      $stmt = $this->conn->prepare($sql);
+      $stmt->execute();
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch(Exception $e){
+      error_log("Error in getting enrollments : " . $e->getMessage());
+      return false;
+    }
+  }
+  public function getLastEnrollments(){
+    try{
+      $sql = "SELECT enrollments.*, courses.title AS course_title, users.name FROM enrollments JOIN courses ON enrollments.course_id = courses.id JOIN users ON enrollments.user_id = users.id ORDER BY enrolled_at DESC LIMIT 3";
+      $stmt = $this->conn->prepare($sql);
+      $stmt->execute();
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch(Exception $e){
+      error_log("Error in getting last enrollments : " . $e->getMessage());
+      return false;
+    }
+  }
   
 
 }
