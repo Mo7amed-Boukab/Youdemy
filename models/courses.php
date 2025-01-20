@@ -80,8 +80,11 @@ class Courses
       return false;
     }
   }
-  
 
+  public function allCourses_details(){}
+  public function getMyEnrollments($student_id){}
+
+  
 }
 
 

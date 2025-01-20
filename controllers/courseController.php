@@ -13,7 +13,6 @@
             header('Location: ./pages/courses/course-details.php');
             exit;
           }
-      
       }
       
     }

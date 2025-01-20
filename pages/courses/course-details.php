@@ -11,6 +11,14 @@
     $course = new Courses($conn);
     $courseDetails = $course->course_details($course_id);
 
+    require_once "../../models/student.php";
+    $Enrolled = false;
+    if(isset($_SESSION['student_id'])){
+      $student_id =  $_SESSION['student_id'];
+      $student = new Student($conn);
+      $Enrolled = $student->isEnrolled($student_id, $course_id);
+    }
+    
 ?>
 
 <!DOCTYPE html>
@@ -23,8 +31,8 @@
 </head>
 <style>
   .active-btn {
-      color: red !important;
-      border-bottom: 2px solid red !important;
+      color: #dc2626 !important;
+      border-bottom: 2px solid #dc2626 !important;
     }
 </style>
 <body class="bg-white">
@@ -86,7 +94,7 @@
                         </div>
     
                         <button class="bg-red-600 text-white text-left py-3 px-9 rounded-md hover:bg-red-700 transition-colors mb-2">
-                                Enroll Now
+                                <?php echo $Enrolled ? "Go to course" : "Enroll Now" ?>
                         </button>
                         
                     </div>

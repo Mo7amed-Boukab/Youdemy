@@ -11,8 +11,14 @@
 
     $courses = new Courses($conn);
     $courseInfo = $courses->getAll();
+    
+    require_once "../../models/student.php";
+
+    $student = new Student($conn);
+
 
     require_once "../../controllers/courseController.php";
+    require_once "../../controllers/studentController.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,22 +38,31 @@
                         <span class="text-2xl font-bold text-red-600">YOUDEMY</span>
                     </a>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="./../auth/logout.php" class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700">Log Out</a>
+                <div class="flex items-center space-x-4 md:space-x-8">
+                    <div class="flex items-center space-x-4">
+                      <form action="" method="POST">
+                        <input type="hidden" name="student_id" value="<?php echo $student_id; ?>">
+                        <button name="my_courses" class="text-gray-600 hover:text-red-600 transition-colors">My Courses</button>
+                      </form>  
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="./../auth/logout.php" class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700">Log Out</a>
+                    </div>
                 </div>
+                            
             </div>
         </div>
     </nav>
+  
 <!--------------------------------------------------Hero Section ---------------------------------------------->
     <div class="bg-slate-950 py-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col items-start space-y-8">
-                <div class="flex items-center text-white/80 space-x-2">
+                <div class="flex items-center text-white/80 space-x-2 mt-10">
                     <a href="/" class="hover:text-red-500">Youdemy</a>
                     <span>/</span>
                     <span>Online self learning platform</span>
-                </div>
-                
+                </div>            
                 <div>
                     <h1 class="text-6xl font-bold text-white mb-2">Welcom to <span class="text-red-600">Youdemy</span> Platform</h1>
                 </div>
@@ -119,7 +134,7 @@
       <!-- Courses Container ------------------------------------------------ -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- Course Card ---------------------------------------------------------------------------------------------->
-               <?php foreach($courseInfo AS $course): ?>
+               <?php foreach($courseInfo AS $course):  $Enrolled = $student->isEnrolled($student_id, $course['id']); ?>
               <div class="bg-white rounded-lg overflow-hidden shadow-sm border hover:shadow-md transition-shadow">
                   <div class="relative">
                       <img src="<?php echo $course['image']; ?>" alt="" class="w-full h-48 object-cover">
@@ -144,17 +159,22 @@
                               </div>
                           </div>
                       </div>
+                    
                       <div class="flex justify-between items-center space-x-4">
-                          <button class="flex-1 border border-red-600 text-red-600 py-2 px-4 rounded-md hover:bg-red-50 transition-colors duration-200 flex items-center justify-center">
-                              Enroll Now
-                          </button>
-                          <form action="" method="POST">
-                              <input type="hidden" name="course_id" value="<?php echo $course['id'] ?>">
+                          <form action="" method="POST" class="flex-1">
+                            <input type="hidden" name="course_id" value="<?php echo $course['id'] ?>">
+                            <input type="hidden" name="student_id" value="<?php echo $student_id ?>">
+                            <button type="submit" name="enroll-course" class="w-full border border-red-600 text-red-600 py-2 px-4 rounded-md hover:bg-red-50 transition-colors duration-200 flex items-center justify-center">
+                                  <?php echo $Enrolled ? "Enrolled" : "Enroll Now"; ?>
+                            </button>
+                          </form>
+                          <form action="" method="POST" class="flex-1">
                               <input type="hidden" name="student_id" value="<?php echo $student_id ?>">
-                              <button name="view-course-details" class="flex-1 bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors duration-200 flex items-center justify-center">
+                              <input type="hidden" name="course_id" value="<?php echo $course['id'] ?>">
+                              <button type="submit" name="view-course-details" class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors duration-200 flex items-center justify-center">
                                   View Details
                               </button>
-                          </form>
+                          </form>                    
                       </div>
                   </div>
               </div>

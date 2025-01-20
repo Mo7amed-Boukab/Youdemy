@@ -44,8 +44,8 @@
     <div class="bg-slate-950 py-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col items-start space-y-8">
-                <div class="flex items-center text-white/80 space-x-2">
-                    <a href="/" class="hover:text-red-500">Youdemy</a>
+                <div class="flex items-center text-white/80 space-x-2 mt-10 ">
+                    <a href="/" class="hover:text-red-500 ">Youdemy</a>
                     <span>/</span>
                     <span>Online self learning platform</span>
                 </div>
@@ -136,7 +136,7 @@
                                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                       <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
                                   </svg>
-                                  <span><?php echo $course['total_enrollments']; ?></span>
+                                  <span><?php echo $course['total_enrollments']; ?> student</span>
                               </div>
                               <div class="flex items-center">
                                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -147,12 +147,15 @@
                           </div>
                       </div>
                       <div class="flex justify-between items-center space-x-4">
-                          <button class="flex-1 border border-red-600 text-red-600 py-2 px-4 rounded-md hover:bg-red-50 transition-colors duration-200 flex items-center justify-center">
-                              Enroll Now
-                          </button>
-                          <form action="" method="POST">
+                          <form action="" method="POST" class="flex-1">
                               <input type="hidden" name="course_id" value="<?php echo $course['id'] ?>">
-                              <button name="view-course-details" class="flex-1 bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors duration-200 flex items-center justify-center">
+                              <button type="submit" name="loginToEnroll" class="w-full border border-red-600 text-red-600 py-2 px-4 rounded-md hover:bg-red-50 transition-colors duration-200 flex items-center justify-center">
+                                  Enroll Now
+                              </button>
+                          </form>
+                          <form action="" method="POST"  class="flex-1">
+                              <input type="hidden" name="course_id" value="<?php echo $course['id'] ?>">
+                              <button type="submit" name="view-course-details"  class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors duration-200 flex items-center justify-center">
                                   View Details
                               </button>
                           </form>
@@ -161,43 +164,6 @@
               </div>
               <?php endforeach; ?>
           <!-- -------------------------------------------------------------------------------------------- -->
-      <!-- Course Card ---------------------------------------------------------------------------------------------->
-              <div class="bg-white rounded-lg overflow-hidden shadow-sm border hover:shadow-md transition-shadow">
-                  <div class="relative">
-                      <img src="./assets/images/cart-img1.png" alt="" class="w-full h-48 object-cover">
-                  </div>
-                  <div class="p-4">
-                      <h3 class="text-lg font-semibold mb-2">Laravel - The Complete Laravel Course</h3>
-                      
-                      <div class="flex items-center text-sm text-gray-500 mb-4">
-                          <div class="flex items-center space-x-4">
-                              <span class="bg-gray-100 px-2 py-1 rounded">Laravel</span>
-                              <div class="flex items-center">
-                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                      <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
-                                  </svg>
-                                  <span>120 students</span>
-                              </div>
-                              <div class="flex items-center">
-                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                                  </svg>
-                                  <span>2h 30min</span>
-                              </div>
-                          </div>
-                      </div>
-                      <div class="flex justify-between items-center space-x-4">
-                          <button class="flex-1 border border-red-600 text-red-600 py-2 px-4 rounded-md hover:bg-red-50 transition-colors duration-200 flex items-center justify-center">
-                              Enroll Now
-                          </button>
-                          <button class="flex-1 bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors duration-200 flex items-center justify-center">
-                              View Details
-                          </button>
-                      </div>
-                  </div>
-              </div>
-          <!-- -------------------------------------------------------------------------------------------- -->
-
     
         </div>
     
