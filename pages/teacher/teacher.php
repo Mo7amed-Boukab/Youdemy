@@ -8,6 +8,7 @@
     $conn = $db->connect();
 
     require_once "../../models/teacher.php";
+    require_once "./../../models/admin.php";
     require_once "../../controllers/teacherController.php";
 
     $teacher = new Teacher($conn);
@@ -20,6 +21,10 @@
     $enrollments = $courses->getEnrollments();
     $lastEnrollments = $courses->getLastEnrollments();
 
+    $getData = new Admin($conn);
+    $allTags = $getData->getallTags();
+    $allCategories = $getData->getAllCategories();
+
 ?>
 
 <!DOCTYPE html>
@@ -31,7 +36,6 @@
     <link rel="stylesheet" href="../../assets/css/styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
 <body class="bg-gray-50">
     <!-- Menu Button ------------------- -->
     <div class="lg:hidden fixed top-4 left-4 z-50">
@@ -335,7 +339,7 @@
                             <td class="px-6 py-4"><?php echo $enroll['name'] ?></td>
                             <td class="hidden sm:table-cell px-6 py-4"><?php echo $enroll['email'] ?></td>  
                             <td class="px-6 py-4"><?php echo $enroll['course_title'] ?></td>
-                            <td class="hidden md:table-cell px-6 py-4"><?php echo date("d M Y", strtotime($enroll['enrolled_at'])) ?>;</td>
+                            <td class="hidden md:table-cell px-6 py-4"><?php echo date("d M Y", strtotime($enroll['enrolled_at'])) ?></td>
                         </tr>
                 <?php endforeach; ?>        
                     </tbody>
@@ -379,7 +383,6 @@
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                             >
                         </div>
-
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                               Image
@@ -427,31 +430,7 @@
                             </textarea>
                         </div>
                     </div>
-                </div>
-                <div class="mb-6">
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Catégorie
-                            </label>
-                            <select required name="category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                                <option value="1" selected>Web Development</option>
-                                <option value="2">Design</option>
-                                <option value="3">Marketing</option>
-                            </select>
-                        </div>
-                        <!-- <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Tags
-                            </label>
-                            <input 
-                                type="text" 
-                                name="tags"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                            >
-                        </div> -->
-                    </div>
-                </div>
+                </div>            
                 <div class="mb-6">
                     <div class="space-y-4">
                         <div>
@@ -478,7 +457,44 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex justify-end space-x-4">
+                <div class="mb-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Catégorie
+                            </label>
+                            <select required name="category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                              <?php foreach($allCategories as $category): ?>
+                                <option value="<?php echo $category['id']; ?>" selected><?php echo $category['name']; ?></option>
+                              <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                    <div class="space-y-4">
+                      <label class="block text-sm font-medium text-gray-700 mb-1">
+                          Tags
+                      </label>
+                      <div class="flex flex-wrap gap-2 p-4 border border-gray-200 rounded-md bg-gray-50 max-h-48 overflow-y-auto">
+                          <?php foreach($allTags as $tag): ?>
+                              <label class="tag-container">
+                                  <input 
+                                      type="checkbox" 
+                                      name="selected_tags" 
+                                      value="<?php echo $tag['id']; ?>"
+                                      class="hidden"
+                                  >
+                                  <span class="px-3 py-1 rounded-full text-sm cursor-pointer transition-colors duration-200 
+                                      peer-checked:bg-red-500 peer-checked:text-white peer-checked:border-red-500
+                                      bg-white border border-gray-300 hover:bg-gray-100
+                                      [input:checked+&]:bg-red-500 [input:checked+&]:text-white [input:checked+&]:border-red-500">
+                                      <?php echo $tag['name']; ?>
+                                  </span>
+                              </label>
+                          <?php endforeach; ?>
+                      </div>
+                </div>
+                <div class="flex justify-end space-x-4 mt-6">
                   <input type="hidden" name="teacher_id" value="<?php echo $teacher_id ;?>">
                     <button 
                         type="submit"
@@ -500,7 +516,6 @@
         </div>
     </div>
 <!-- --------------------------------------------------------------------------------------------------- -->
-
     <script>
 
       const menuButton = document.getElementById('menuButton');

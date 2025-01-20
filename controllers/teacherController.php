@@ -22,17 +22,25 @@
         $category_id = $_POST['category'];
         $user_id = $_POST['teacher_id'];
 
+        $tags = $_POST['selected_tags'];
+
         if(isset($_POST['publish_course'])) {
           $status = 'Published';
         }
         elseif(isset($_POST['save_draft'])) {
           $status = 'Draft';
         }
+
         $teacher = new Teacher($conn);
-        $teacher->createCourse($title, $description, $image, $content_type, $content_text, $content_video, $duration, $level, $category_id, $user_id, $status);
-        header('Location: ' . $_SERVER['PHP_SELF']);
-        exit;
+        $course_id = $teacher->createCourse($title, $description, $image, $content_type, $content_text, $content_video, $duration, $level, $category_id, $user_id, $status);
+        if($course_id){
+          $teacher->selectTags($course_id, $tags);
+          header('Location: ' . $_SERVER['PHP_SELF']);
+          exit;
+        }
+      
       }
+
     
     
     }

@@ -50,7 +50,7 @@
               return ['message' => "Error in login: " . $e->getMessage()];
           }
       }
- 
+
       public function getLastUsers(){
         try{
           $sql = "SELECT * FROM users WHERE status = 'active' OR status = 'suspended' ORDER BY created_at DESC LIMIT 4";
@@ -62,7 +62,7 @@
            die("Error in getting last users: " . $e->getMessage());
         }
       }
-
+    
       public function getLastTeachers(){
         try{
           $sql = "SELECT * FROM users WHERE role = 'teacher' AND status != 'suspended' ORDER BY created_at DESC LIMIT 4";
@@ -71,7 +71,8 @@
           return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch(Exception $e){
-           die("Error in getting last teachers: " . $e->getMessage());
+          error_log("Error in getting Last Teachers: " . $e->getMessage());
+          return false;
         }
       }
       
@@ -83,10 +84,11 @@
           return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch(Exception $e){
-           die("Error in getting all users: " . $e->getMessage());
+          error_log("Error in getting all Users: " . $e->getMessage());
+          return false;
         }
       }
-
+    
       public function getAllTeachers()
       {
         try{
@@ -96,10 +98,11 @@
           return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch(Exception $e){
-           die("Error in getting all teachers: " . $e->getMessage());
+          error_log("Error in getting all Teachers: " . $e->getMessage());
+          return false;
         }
       }
-
+    
       public function getAllStudents()
       {
         try{
@@ -109,10 +112,10 @@
           return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
         catch(Exception $e){
-           die("Error in getting all students: " . $e->getMessage());
+          error_log("Error in getting all Students: " . $e->getMessage());
+          return false;
         }
       }
-    
     }
 
 ?>

@@ -4,19 +4,21 @@
     $admin_name = $_SESSION['admin_name'];
 
     require_once "../../config/conn.php";
-
-
-    $db = new Database();
-    $conn = $db->connect();
     require_once "./../../models/user.php";
-    $users = new User($conn);
-    $getLastUsers = $users->getLastUsers();
-    $getLastTeachers = $users->getLastTeachers();
-    $getTeachers = $users->getAllTeachers();
-    $getAllUsers = $users->getAllUsers();
-    
-    require_once "../../controllers/adminController.php";
-  
+    require_once "./../../models/admin.php";
+    require_once "../../controllers/adminController.php"; 
+
+    $getUsers = new User($conn);
+    $getLastUsers = $getUsers->getLastUsers();
+    $getLastTeachers = $getUsers->getLastTeachers();
+    $getTeachers = $getUsers->getAllTeachers();
+    $getAllUsers = $getUsers->getAllUsers();
+
+    $courses_details = new Admin($conn);
+    $allCourses = $courses_details->allCourses_details();
+    $allCategories =$courses_details->getAllCategories();
+    $allTags =$courses_details->getallTags();
+
 ?>
 
 <!DOCTYPE html>
@@ -79,7 +81,7 @@
                     </svg>
                     <span>Courses</span>
                 </a>
-                <a href="#" class="flex items-center space-x-3 p-3 hover:bg-gray-800 rounded-lg">
+                <a href="#" id="tags&categoriesBtn" class="flex items-center space-x-3 p-3 hover:bg-gray-800 rounded-lg">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
                     </svg>
@@ -116,13 +118,13 @@
                 <p class="text-gray-600">Welcome back, <?php echo $admin_name; ?></p>
             </div>
             <div class="flex space-x-4">
-                <button class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center space-x-2">
+                <button id="addCategoryBtn" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center space-x-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     <span>Add Category</span>
                 </button>
-                <button class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center space-x-2">
+                <button id="addTagsBtn" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center space-x-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
                     </svg>
@@ -203,10 +205,9 @@
                 </div>
                 <div class="space-y-4">
                         <?php foreach ($getLastTeachers as $teacher) : ?>
-                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition">
                         <div class="flex items-center space-x-3">
-                            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                        
+                            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">                      
                                 <span class="text-red-600 font-semibold"><?php echo $teacher['name'][0] . $teacher['name'][1] ?></span>
                             </div>
                             <div>
@@ -247,7 +248,7 @@
                 </div>
                 <?php foreach ($getLastUsers as $user) : if ($user['role'] != 'admin') : ?>
                 <div class="space-y-4 mb-4 ">
-                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition">
                         <div class="flex items-center space-x-3">
                             <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                                 <span class="text-red-600 font-semibold"><?php echo $user['name'][0] . $user['name'][1] ?></span>
@@ -300,7 +301,7 @@
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                         <?php foreach ($getTeachers as $teacher) : ?>
-                            <tr>
+                            <tr class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
@@ -367,7 +368,7 @@
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                         <?php foreach ($getAllUsers as $user) : if ($user['role'] != 'admin') : ?>
-                            <tr>
+                            <tr class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
@@ -438,7 +439,8 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <tr>
+                  <?php foreach($allCourses as $course): ?>
+                    <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
@@ -447,34 +449,225 @@
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">Web Development Bootcamp</div>
-                                    <div class="text-sm text-gray-500"> 2h : 30min</div>
+                                    <div class="text-sm font-medium text-gray-900"><?php echo $course['course_title'] ?></div>
+                                    <div class="text-sm text-gray-500"><?php echo $course['course_duration'] ?></div>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                              Web Development
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                              <?php echo $course['category_name'] ?>
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900"> mohamed</div>
+                            <div class="text-sm text-gray-900"> <?php echo $course['teacher_name'] ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">15</div>
+                            <div class="text-sm text-gray-900"><?php  echo $course['total_enrollments'] ?></div>
                         </td>
                     
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
-                            <button class="text-red-600 hover:text-red-900">Delete</button>
+                          <div class="flex items-center justify-end space-x-3">                            
+                              <form action="" method="POST">
+                                  <input type="hidden" name="course_id" value="<?php  echo $course['id'] ?>">
+                                  <button type="submit" name="delete_course" class="text-red-600 hover:text-red-900"> Delete </button>
+                              </form>
+                          </div>
                         </td>
                     </tr>
-
+                  <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+<!-- ------------------------------------------------------- Categories & Tags Management ------------------------------------------------ -->
+<div id="tags&categoriesList" class="grid grid-cols-1 gap-8 pb-8 hidden">
+    <!-- ------------------------------------------------------ Categories List -------------------------------------------------------- -->
+    <div class="bg-white p-6 mb-8 rounded-lg shadow-sm border">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold">Categories List</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Courses</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created Date</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <?php foreach($allCategories AS $category): ?>
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900"><?php echo $category['name']; ?> </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"><?php echo $category['total_courses']; ?> Course</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo $category['created_at']; ?></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex items-center justify-end space-x-3">
+                            <form action="" method="post">
+                                <input type="hidden" name="category_id" value="<?php echo $category['id'] ?>">
+                                <button type="submit" name="delete_category" class="text-red-600 hover:text-red-900">Delete</button>
+                            </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ------------------------------------------------------ Tags List ------------------------------------------------------------------------->
+    <div class="bg-white p-6 rounded-lg shadow-sm border">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold">Tags List</h3>
+        </div>
+
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tag Name</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Courses</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created Date</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <?php foreach($allTags AS $tag): ?>
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <span class="px-3 py-1 text-sm font-medium bg-gray-100 text-gray-800 rounded-full"><?php echo $tag['name']; ?></span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"><?php echo $tag['total_courses']; ?> Courses</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo $tag['created_at']; ?></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex items-center justify-end space-x-3">
+                                <form action="" method="POST">
+                                    <input type="hidden" name="tag_id" value="<?php echo $tag['id'] ?>">
+                                    <button type="submit" name="delete_tag" class="text-red-600 hover:text-red-900">Delete</button>
+                                </form> 
+                            </div>
+                      
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+    <!-- ------------------------------------------------------ Category Modal --------------------------------------------------------- -->
+<div id="addCategoryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 transform transition-all">
+        <div class="flex items-center justify-between p-6 border-b">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900">Create New Category</h2>
+            </div>
+            <button id="closeCategoryModal" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="p-6">
+            <form action="" method="POST" id="categoryForm" class="space-y-4">
+                <div>
+                    <label for="categoryName" class="block text-sm font-medium text-gray-700 mb-1">
+                        Category Name
+                    </label>
+                    <input 
+                        type="text" 
+                        name="category" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Enter category name"
+                    >
+                </div>
+                <div class="flex justify-end space-x-3 px-6 py-4 bg-gray-50 rounded-b-lg">
+                    <button id="cancelCategoryBtn" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-800">
+                        Cancel
+                    </button>
+                    <button type="submit" name="addCategory" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">
+                        Add Category
+                    </button>
+                </div>
+
+            </form>
+        </div>
+        
+    </div>
+</div>
+<!-- -------------------------------------------------   Tags Modal ------------------------------------------------------- -->
+<div id="addTagsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 transform transition-all">
+          <div class="flex items-center justify-between p-6 border-b">
+              <div>
+                  <h2 class="text-xl font-semibold text-red-700">Add Tags</h2>
+              </div>
+              <button id="closeTagsModalBtn" class="text-gray-400 hover:text-gray-600">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+              </button>
+          </div>
+            <div class="p-6">
+                <form action="" method="POST" class="space-y-4">
+                    <div class="relative">
+                        <div class="flex items-center justify-between">
+                            <svg class="w-5 h-5 text-gray-400 absolute left-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
+                            </svg>
+                            <input 
+                                type="text" 
+                                name="tag"
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                placeholder="Enter multiple tags"
+                            >
+                        </div>
+                    </div>
+            <div class="flex justify-end space-x-3 px-6 py-4 bg-gray-50 rounded-b-lg">
+                <button id="cancelTagBtn" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-800">
+                    Cancel
+                </button>
+                <button type="submit" name="addTag" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">
+                    Confirm
+                </button>
+            </div>
+
+            </form>
+        </div>
+      
+    </div>
+</div>
+
+<!-- -------------------------------------------------------------------------- -->
 
 <script>
   
@@ -504,6 +697,7 @@
                 listAllTeachers.style.display = 'block';
                 listAllUsers.style.display = 'none';
                 tableCourses.style.display = 'none';
+                tagsCategoriesList.style.display= "none";
             });
 
             seeAllUsersBtn.addEventListener('click', () => {
@@ -512,6 +706,7 @@
                 listAllTeachers.style.display = 'none';
                 listAllUsers.style.display = 'block';
                 tableCourses.style.display = 'none';
+                tagsCategoriesList.style.display= "none";
             });
 
             usersManagement.addEventListener('click', () => {
@@ -520,6 +715,7 @@
                 listAllTeachers.style.display = 'none';
                 listAllUsers.style.display = 'block';
                 tableCourses.style.display = 'none';
+                tagsCategoriesList.style.display= "none";
             });
 
             teacherValidation.addEventListener('click', () => {
@@ -528,7 +724,7 @@
                 listAllUsers.style.display = 'none';
                 listAllTeachers.style.display = 'block';
                 tableCourses.style.display = 'none';
-          
+                tagsCategoriesList.style.display= "none";
             }); 
             
             const tableCourses = document.getElementById('tableCourses');
@@ -540,7 +736,51 @@
               seeAllUsers_section.style.display = 'none';
               listAllUsers.style.display = 'none';
               listAllTeachers.style.display = 'none';
+              tagsCategoriesList.style.display= "none";
             })
+
+            const addTagsBtn= document.getElementById('addTagsBtn');
+            const addTagsModal= document.getElementById('addTagsModal');
+            const closeModalBtn= document.getElementById('closeTagsModalBtn');
+            const addCategoryBtn= document.getElementById('addCategoryBtn');
+            const addCategoryModal= document.getElementById('addCategoryModal');
+            const closeCategoryModal= document.getElementById('closeCategoryModal');
+            const cancelTagBtn= document.getElementById('cancelTagBtn');
+            const cancelCategoryBtn= document.getElementById('cancelCategoryBtn');
+
+            addTagsBtn.addEventListener('click',()=>{
+              addTagsModal.style.display= "flex";
+            })
+            closeModalBtn.addEventListener('click',()=>{
+              addTagsModal.style.display="none";
+            })
+            cancelTagBtn.addEventListener('click',()=>{
+              addTagsModal.style.display="none";
+            })
+
+            addCategoryBtn.addEventListener('click',()=>{
+              addCategoryModal.style.display= "flex";
+            })
+
+            closeCategoryModal.addEventListener('click',()=>{
+              addCategoryModal.style.display="none";   
+            })
+            cancelCategoryBtn.addEventListener('click',()=>{
+              addCategoryModal.style.display="none";   
+            })
+
+            const tagsCategoriesBtn= document.getElementById('tags&categoriesBtn');
+            const tagsCategoriesList= document.getElementById('tags&categoriesList');
+
+            tagsCategoriesBtn.addEventListener('click',()=>{
+              tagsCategoriesList.style.display= "block";
+              tableCourses.style.display = 'none';
+              seeAllTeachers_section.style.display = 'none';
+              seeAllUsers_section.style.display = 'none';
+              listAllUsers.style.display = 'none';
+              listAllTeachers.style.display = 'none';
+            })
+
 </script>
 
 </body>

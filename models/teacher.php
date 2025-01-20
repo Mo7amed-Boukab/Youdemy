@@ -16,10 +16,24 @@
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([':title' => $title, ':description' => $description, ':image' => $image, ':content_type' => $content_type, ':content_text' => $content_text,
                             ':content_video' => $content_video, ':duration' => $duration, ':level' => $level, ':category_id' => $category_id , ':user_id' => $user_id, ':status' => $status]);
-            return true;
+            return $this->conn->lastInsertId();
         }
         catch(Exception $e){
           error_log("Error in creating course: " . $e->getMessage());
+          return false;
+        }
+      }
+      public function selectTags($course_id, $tags){
+        try{
+         foreach($tags as $tag):
+              $sql = "INSERT INTO course_tags (course_id, tag_id) VALUES (:course_id, :tag_id)";
+              $stmt = $this->conn->prepare($sql);
+              $stmt->execute([':course_id' => $course_id, ':tag_id' => $tag]);
+         endforeach;
+          return true;
+        }
+        catch(Exception $e){
+          error_log("Error in adding tags to course: " . $e->getMessage());
           return false;
         }
       }
