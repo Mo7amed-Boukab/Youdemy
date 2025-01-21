@@ -2,7 +2,7 @@
     session_start();
     $teacher_id = $_SESSION['teacher_id'];
     $teacher_name = $_SESSION['teacher_name'];
-    $course_id = $_SESSION['course_id'];
+  
     require_once "../../config/conn.php";
     $db = new Database();
     $conn = $db->connect();
@@ -343,14 +343,12 @@
                                   </td>
                                   <td class="px-6 py-4">
                                       <div class="flex space-x-3">
-                                        <form action="" method="POST">
-                                              <input type="hidden" name="course_id" value="<?php  echo $course['id'] ?>">  
-                                              <button id="editCourse" type="submit" name="edit_course" class="text-blue-600 hover:text-blue-800">
+                                           
+                                              <a href="./teacher.php?action=editCourse&courseId=<?php  echo $course['id'] ?>" class="text-blue-600 hover:text-blue-800">
                                                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                                                   </svg>
-                                              </button>
-                                          </form>
+                                              </a>
                                           <form action="" method="POST">
                                               <input type="hidden" name="course_id" value="<?php  echo $course['id'] ?>">   
                                               <button type="submit" name="delete_course" class="text-red-600 hover:text-red-800">
@@ -386,7 +384,6 @@
                     </select>
                 </div>
             </div>
-
             <div class="overflow-x-auto -mx-4 lg:mx-0">
                 <table class="w-full">
                     <thead class="bg-gray-50">
@@ -411,7 +408,7 @@
             </div>
         </div>
     </div>
-  <!-- ------------------------------------------- Add Course Modal -------------------------------------------------- -->
+  <!-- --------------------------------------------- Add Course Modal ------------------------------------------------------ -->
       <div id="addCourseModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
       <div class="bg-white rounded-lg w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex justify-between items-center p-6 border-b">
@@ -514,7 +511,7 @@
                                 Level
                             </label>
                             <select name="level" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                                <option value="beginner selected">Beginner</option>
+                                <option value="beginner" selected>Beginner</option>
                                 <option value="intermediate">Intermediate</option>
                                 <option value="advanced">Advanced</option>
                             </select>
@@ -579,6 +576,187 @@
             </form>
         </div>
     </div>
+<!-- ----------------------------------------------- Edit Course Modal --------------------------------------------------------- -->
+<?php if(isset($_GET['courseId']) && isset($_GET['action']) && $_GET['action'] === 'editCourse' ):
+    $course_id = $_GET['courseId'];
+    $editCourse = $courses->getCourseForEdit($course_id);
+    if($editCourse):
+  ?>
+<div id="editCourseModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
+      <div class="bg-white rounded-lg w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-semibold">Edit course</h3>
+                <button id="closeEditCourseModal" class="text-gray-600 hover:text-gray-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <form class="p-6" action="" method="POST">
+                <div class="mb-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                              Title
+                            </label>
+                            <input 
+                                type="text" 
+                                name="new_title"
+                                value="<?php echo $editCourse['title'] ?>"
+                                required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                              Description
+                            </label>
+                            <input 
+                                type="text" 
+                                name="new_description"
+                                value="<?php echo $editCourse['description'] ?>"
+                                required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                              Image
+                            </label>
+                            <input 
+                                type="text" 
+                                name="new_image_url"
+                                value="<?php echo $editCourse['image'] ?>"
+                                required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Content Type
+                            </label>
+                                <select 
+                                    id="contentType" 
+                                    required 
+                                    name="new_content_type"
+                                      value="<?php echo $editCourse['content_type'] ?>"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    onchange="toggleContentInputs()"
+                                >
+                                    <option value="video">video</option>
+                                    <option value="document">document</option>
+                                </select>
+                        </div>
+                        <div class="videoInput" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Video URL
+                            </label>
+                            <input 
+                                type="text" 
+                                name="new_video_url"
+                                value="<?php echo $editCourse['content_video'] ?>"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                            >
+                        </div>
+                        <div class="textInput" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Content
+                            </label>
+                            <textarea 
+                                name="new_content"
+                                rows="4" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                                <?php echo $editCourse['content_text'] ?>
+                              </textarea>
+                        </div>
+                    </div>
+                </div>            
+                <div class="mb-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Duration
+                            </label>
+                            <input 
+                                type="time" 
+                                name="new_duration"
+                                value="<?php echo $editCourse['duration'] ?>"
+                                required
+                                min="1"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Level
+                            </label>
+                            <select name="level" value="<?php echo $editCourse['level'] ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                                <option <?php if( $editCourse['level'] === 'Beginner'): ?> selected <?php endif; ?> value="beginner">Beginner</option>
+                                <option <?php if( $editCourse['level'] === 'Intermediate'): ?> selected <?php endif; ?> value="intermediate">Intermediate</option>
+                                <option <?php if( $editCourse['level'] === 'Advanced'): ?> selected <?php endif; ?> value="advanced">Advanced</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Catégorie
+                            </label>
+                            <select required name="new_category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                              <?php foreach($allCategories as $category): ?>
+                                <option <?php if($category['id'] === $editCourse['category_id'] ): ?> selected <?php endif; ?> value="<?php echo $category['id']; ?>"><?php echo $category['name']; ?></option>
+                              <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                    <div class="space-y-4">
+                      <label class="block text-sm font-medium text-gray-700 mb-1">
+                          Tags
+                      </label>
+                      <div class="flex flex-wrap gap-2 p-4 border border-gray-200 rounded-md bg-gray-50 max-h-48 overflow-y-auto">
+                          <?php foreach($allTags as $tag): ?>
+                              <label class="tag-container">
+                                  <input 
+                                      type="checkbox" 
+                                      name="new_selected_tags" 
+                                      value="<?php echo $tag['id']; ?>"
+                                      class="hidden"
+                                      <?php if( in_array($tag['id'], explode(',', $editCourse['tag_id']))): ?>  checked <?php endif;?>
+                                  >
+                                  <span class="px-3 py-1 rounded-full text-sm cursor-pointer transition-colors duration-200 
+                                      peer-checked:bg-red-500 peer-checked:text-white peer-checked:border-red-500
+                                      bg-white border border-gray-300 hover:bg-gray-100
+                                      [input:checked+&]:bg-red-500 [input:checked+&]:text-white [input:checked+&]:border-red-500">
+                                      <?php echo $tag['name']; ?>
+                                  </span>
+                              </label>
+                          <?php endforeach; ?>
+                      </div>
+                </div>
+                <div class="flex justify-end space-x-4 mt-6">
+                  <input type="hidden" name="teacher_id" value="<?php echo $teacher_id ;?>">
+                  <input type="hidden" name="course_id" value="<?php echo $course_id ;?>">
+                    <button 
+                        id ="cancelEditCourse"
+                        class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                        type="submit"
+                        name="update_course"
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                    >
+                        Update Course
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <?php endif; endif; ?>
 <!-- --------------------------------------------------------------------------------------------------- -->
     <script>
 
@@ -638,13 +816,22 @@
         const seeMoreCourses = document.getElementById('seeMoreCourses');
         const closeEnrollModal = document.getElementById('closeEnrollModal');
         const enrollmentsModal = document.getElementById('enrollmentsModal');
+        const editCourseModal = document.getElementById('editCourseModal');
+        const closeEditCourseModal = document.getElementById('closeEditCourseModal');
+
         if(enrollmentsModal){
               closeEnrollModal.addEventListener('click', () => {
               enrollmentsModal.classList.add('hidden');
               window.location.href="./teacher.php";
           });   
         }
-         
+        
+        if(editCourseModal){
+          closeEditCourseModal.addEventListener('click', () => {
+              editCourseModal.classList.add('hidden');
+              window.location.href="./teacher.php";
+          });
+        }
 
         coursesButton.addEventListener('click', () => {
           allCourses.style.display = 'block';
@@ -670,9 +857,9 @@
   //  -------------------------------------------------------------------
   
   function toggleContentInputs() {
-        const contentType = document.getElementById('contentType').value;
-        const videoInput = document.getElementById('videoInput');
-        const textInput = document.getElementById('textInput');
+        const contentType = document.querySelector('.contentType').value;
+        const videoInput = document.querySelector('.videoInput');
+        const textInput = document.querySelector('.textInput');
 
         if (contentType === 'video') {
             videoInput.classList.remove('hidden');

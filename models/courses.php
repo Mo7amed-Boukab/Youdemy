@@ -96,6 +96,61 @@ class Courses
       return false;
     }
   }
+  public function getCourseForEdit($courseId) {
+    try {
+        $sql = "SELECT courses.*, course_tags.tag_id AS tag_id, category.id AS category_id, category.name AS category_name
+                FROM courses 
+                LEFT JOIN category ON courses.category_id = category.id 
+                LEFT JOIN course_tags ON courses.id = course_tags.course_id
+                WHERE courses.id = :course_id";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':course_id' => $courseId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        error_log("Error in getting course for editing: " . $e->getMessage());
+        return false;
+    }
+}
+  public function updateCourse($courseId, $title, $description, $image, $content_type, $content_text, $content_video, $duration, $level, $category_id, $user_id, $status) {
+    try {
+        $sql = "UPDATE courses 
+                SET title = :title, 
+                    description = :description, 
+                    image = :image, 
+                    content_type = :content_type, 
+                    content_text = :content_text, 
+                    content_video = :content_video, 
+                    duration = :duration, 
+                    level = :level, 
+                    category_id = :category_id, 
+                    user_id = :user_id, 
+                    status = :status 
+                WHERE id = :course_id";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([
+            ':title' => $title,
+            ':description' => $description,
+            ':image' => $image,
+            ':content_type' => $content_type,
+            ':content_text' => $content_text,
+            ':content_video' => $content_video,
+            ':duration' => $duration,
+            ':level' => $level,
+            ':category_id' => $category_id,
+            ':user_id' => $user_id,
+            ':status' => $status,
+            ':course_id' => $courseId
+        ]);
+
+        return true;
+    } catch (Exception $e) {
+        error_log("Error in update course: " . $e->getMessage());
+        return false;
+    }
+}
+
 }
 
 

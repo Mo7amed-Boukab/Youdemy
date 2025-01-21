@@ -1,6 +1,9 @@
 <?php 
         require_once  __DIR__ . "/../config/conn.php";
+        require_once  __DIR__ . "/../models/courses.php";
 
+        $db = new Database();
+        $conn = $db->connect();
 // -------------------------------------------------------------------- Add Course
     if($_SERVER['REQUEST_METHOD'] === 'POST') {
       if(isset($_POST['publish_course']) || isset($_POST['save_draft'])) {
@@ -49,6 +52,32 @@
         header('Location: ' . $_SERVER['PHP_SELF']);
         exit;
       }
-    
+
+      if(isset($_POST['update_course'])){
+        $course_id = $_POST['course_id'];
+        $title = $_POST['new_title'];
+        $description = $_POST['new_description'];
+        $image = $_POST['new_image_url'];
+        $content_type = $_POST['new_content_type'];
+
+        if ($content_type === 'video') {
+          $content_video = $_POST['new_video_url'];
+          $content_text = null;
+        } elseif ($content_type === 'document') {
+          $content_text = $_POST['new_content'];
+          $content_video = null;
+        }
+        $duration = $_POST['new_duration'];
+        $level = $_POST['level'];
+        $category_id = $_POST['new_category'];
+        $user_id = $_POST['teacher_id'];
+        $tags = $_POST['new_selected_tags'];
+        $status = 'Published';
+        $update = new Courses($conn);
+
+        $update->updateCourse($course_id, $title, $description, $image, $content_type, $content_text, $content_video, $duration, $level, $category_id, $user_id, $status);
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+      }  
     
     }
