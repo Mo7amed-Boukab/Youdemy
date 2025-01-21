@@ -83,8 +83,19 @@ class Courses
 
   public function allCourses_details(){}
   public function getMyEnrollments($student_id){}
-
   
+  public function enrollmentsByCourse($course_id){
+    try{
+      $sql = "SELECT enrollments.*, users.name AS student_name, users.email AS student_email  FROM enrollments JOIN users ON enrollments.user_id = users.id WHERE enrollments.course_id = :course_id";
+      $stmt = $this->conn->prepare($sql);
+      $stmt->execute([':course_id' => $course_id]);
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch(Exception $e){
+      error_log("Error in getting enrollments by course: " . $e->getMessage());
+      return false;
+    }
+  }
 }
 
 

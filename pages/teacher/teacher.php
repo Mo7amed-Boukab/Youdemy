@@ -2,20 +2,20 @@
     session_start();
     $teacher_id = $_SESSION['teacher_id'];
     $teacher_name = $_SESSION['teacher_name'];
-
+    $course_id = $_SESSION['course_id'];
     require_once "../../config/conn.php";
     $db = new Database();
     $conn = $db->connect();
 
     require_once "../../models/teacher.php";
     require_once "./../../models/admin.php";
+    require_once "../../models/courses.php";
     require_once "../../controllers/teacherController.php";
 
     $teacher = new Teacher($conn);
     $allCourses = $teacher->getAllCourses($teacher_id);
     $lastCourses = $teacher->getLastCourses($teacher_id);
-    
-    require_once "../../models/courses.php";
+  
 
     $courses = new Courses($conn);
     $enrollments = $courses->getEnrollments();
@@ -25,6 +25,7 @@
     $allTags = $getData->getallTags();
     $allCategories = $getData->getAllCategories();
 
+    
 ?>
 
 <!DOCTYPE html>
@@ -109,7 +110,7 @@
     <div class="lg:ml-64 p-4 lg:p-8">
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 mt-16 lg:mt-0">
             <div class="mb-4 lg:mb-0">
-                <h1 class="text-2xl font-bold">Tableau de bord</h1>
+                <h1 class="text-2xl font-bold">Teacher Dashboard</h1>
                 <p class="text-gray-600">Bienvenue, <?php echo $teacher_name; ?></p>
             </div>
             <div class="flex space-x-4">
@@ -235,6 +236,62 @@
           
         </div>
     </div>
+      <!-- ------------------------------------------ Enrollments by Course ---------------------------------------------- -->
+<?php if (isset($_GET['courseId']) && isset($_GET['action']) && $_GET['action'] === 'seeEnrollments'):
+    $enrollmentsCourse = $courses->enrollmentsByCourse($_GET['courseId']); ?>
+
+<div id="enrollmentsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
+    <div class="bg-white rounded-lg w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center p-6 border-b">
+            <h2 class="text-xl font-semibold">Course Enrollments</h2>
+            <button 
+                id ="closeEnrollModal"
+                class="text-gray-600 hover:text-gray-800"
+            >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                      <tr>
+                          <th class="px-6 py-3 text-left text-gray-600">Student Name</th>
+                          <th class="hidden sm:table-cell px-6 py-3 text-left text-gray-600">Email</th>
+                          <th class="hidden md:table-cell px-6 py-3 text-left text-gray-600">Enrolled At</th>
+                          <th class="px-6 py-3 text-left text-gray-600">Status</th>
+                      </tr>
+                  </thead>
+                  <tbody class="divide-y">
+                        <?php if (!empty($enrollmentsCourse)): ?>
+                            <?php foreach($enrollmentsCourse as $student): ?>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4"><?php echo $student['student_name']; ?></td>
+                                    <td class="hidden sm:table-cell px-6 py-4"><?php echo $student['student_email']; ?></td>
+                                    <td class="hidden md:table-cell px-6 py-4">
+                                        <?php echo date("d M Y", strtotime($student['enrolled_at'])); ?>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex px-2 py-1 text-sm rounded-full bg-blue-100 text-blue-700">
+                                            <?php echo $student['status']; ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="4" class="px-6 py-4 text-center hover:bg-gray-50">No enrollments yet</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
   <!-- -------------------------------------------------- All Courses ------------------------------------------------------ -->
         <div id="allCourses" class="bg-white rounded-lg shadow-sm border p-4 lg:p-6 hidden">
             <div  class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 ">
@@ -265,8 +322,7 @@
                             <th class="px-6 py-3 text-left text-gray-600">Status</th>
                             <th class="px-6 py-3 text-left text-gray-600">Actions</th>
                         </tr>
-                    </thead>
-      
+                    </thead>    
                     <tbody class="divide-y" id="coursesTable">
                             <?php foreach($allCourses AS $course): ?>
                               <tr class="hover:bg-gray-50">
@@ -287,21 +343,29 @@
                                   </td>
                                   <td class="px-6 py-4">
                                       <div class="flex space-x-3">
-                                          <button class="text-blue-600 hover:text-blue-800">
-                                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                                              </svg>
-                                          </button>
-                                          <button class="text-red-600 hover:text-red-800">
-                                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                              </svg>
-                                          </button>
-                                          <button class="text-green-600 hover:text-green-800">
-                                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                              </svg>
-                                          </button>
+                                        <form action="" method="POST">
+                                              <input type="hidden" name="course_id" value="<?php  echo $course['id'] ?>">  
+                                              <button id="editCourse" type="submit" name="edit_course" class="text-blue-600 hover:text-blue-800">
+                                                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                                  </svg>
+                                              </button>
+                                          </form>
+                                          <form action="" method="POST">
+                                              <input type="hidden" name="course_id" value="<?php  echo $course['id'] ?>">   
+                                              <button type="submit" name="delete_course" class="text-red-600 hover:text-red-800">
+                                                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                  </svg>
+                                              </button>
+                                          </form>
+                         
+                                              <a href="./teacher.php?action=seeEnrollments&courseId=<?php  echo $course['id'] ?>"  class="text-green-600 hover:text-green-800">
+                                                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                  </svg>
+                                              </a>
+
                                       </div>
                                   </td>
                               </tr>
@@ -563,6 +627,7 @@
                 hideModal();
             }
         });
+        
         // --------------------------------------------------------------------
         const coursesButton = document.getElementById('coursesButton');
         const allCourses = document.getElementById('allCourses');
@@ -571,6 +636,15 @@
         const lastCrsEnroll = document.getElementById('last-courses-enrollements-section');
         const seeMoreEnroll = document.getElementById('seeMoreEnroll');
         const seeMoreCourses = document.getElementById('seeMoreCourses');
+        const closeEnrollModal = document.getElementById('closeEnrollModal');
+        const enrollmentsModal = document.getElementById('enrollmentsModal');
+        if(enrollmentsModal){
+              closeEnrollModal.addEventListener('click', () => {
+              enrollmentsModal.classList.add('hidden');
+              window.location.href="./teacher.php";
+          });   
+        }
+         
 
         coursesButton.addEventListener('click', () => {
           allCourses.style.display = 'block';

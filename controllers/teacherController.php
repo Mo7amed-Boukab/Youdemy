@@ -38,9 +38,17 @@
           header('Location: ' . $_SERVER['PHP_SELF']);
           exit;
         }
-      
-      }
 
+      }
+      // --------------------------------------------------------------- Courses Management
+      if(isset($_POST['delete_course']) && isset($_POST['course_id'])){
+        $course_id = $_POST['course_id'];
+        $sql = "DELETE FROM courses WHERE id = :course_id";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([':course_id' => $course_id]);
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+      }
     
     
     }
