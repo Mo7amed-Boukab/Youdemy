@@ -14,5 +14,19 @@
             exit;
           }
       }
+      if(isset($_POST['enroll-course']) && isset($_POST['course_id']) && !isset($_POST['student_id'])) {
+        session_start();
+        $_SESSION['course_id'] = $_POST['course_id'];
+        $_SESSION['enroll_course'] = $_POST['enroll-course'];
+        header('Location: ./pages/auth/login.php');
+        exit;
+      }
+      if(isset($_POST['show-course']) && isset($_POST['course_id']) && isset($_POST['student_id'])) {
+        session_start();
+        $_SESSION['course_id'] = $_POST['course_id'];
+        $_SESSION['student_id'] = $_POST['student_id'];
+        header('Location: ./show-course.php');
+        exit;
+      }
       
     }

@@ -1,24 +1,48 @@
 <?php 
     session_start();
     $student_id = $_SESSION['student_id'];
-
+    
+    if(!isset($_SESSION['student_id']) && !isset($_SESSION['student_name'])){
+      header('Location: ../auth/login.php');
+      exit;
+   }
     require_once "../../config/conn.php";
 
     $db = new Database();
     $conn = $db->connect();
 
     require_once "../../models/courses.php";
-
-    $courses = new Courses($conn);
-    $courseInfo = $courses->getAll();
-    
     require_once "../../models/student.php";
 
+    $courses = new Courses($conn);
     $student = new Student($conn);
-
 
     require_once "../../controllers/courseController.php";
     require_once "../../controllers/studentController.php";
+
+
+
+    if(isset($_GET['search'])){
+      $searchKey = $_GET['search'];
+      $searchedValue = $courses->searchedCourses($searchKey);
+    }
+    if(isset($_GET['category_name'])){
+      $categoryName = $_GET['category_name'];
+      $coursesByCategory = $courses->coursesByCategorySelected($categoryName);
+    }
+    $popularCategories = $courses->getAllCategories();
+    $start = 0; 
+    $rows_num = $courses->getPublishedCoursesCount(); 
+    $rows_pre_page = 3; 
+    $pages = ceil($rows_num / $rows_pre_page); 
+
+    if (isset($_GET['page-nr'])) {
+        $current_page = (int)$_GET['page-nr']; 
+        $start = ($current_page - 1) * $rows_pre_page; 
+    } else {
+        $current_page = 1;
+    }
+    $courseInfo = $courses->getAll($start, $rows_pre_page);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -34,7 +58,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
             <div class="flex justify-between h-16 items-center">
                 <div>
-                    <a href="index.php" class="flex items-center space-x-2">
+                    <a href="../../index.php" class="flex items-center space-x-2">
                         <span class="text-2xl font-bold text-red-600">YOUDEMY</span>
                     </a>
                 </div>
@@ -82,14 +106,14 @@
     </div>
 <!----------------------------------------------- end hero section ---------------------------------------------->
 
-    <div class="border-b">
+<div class="border-b">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <!-- search bar------------------------------------- -->
             <div class="mb-6 flex items-center justify-between">
                 <div class="relative w-full">
-                    <input type="text" 
-                           placeholder="Search ..." 
-                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:border-red-500">
+                <form action="" method="GET">
+                      <input type="search" name="search" placeholder="Search ..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:border-red-500">
+                  </form> 
                     <div class="absolute left-3 top-2.5 text-gray-400">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -97,43 +121,33 @@
                     </div>
                 </div>
             </div>
+              <!-- Categories --------------------------------- -->
+              <div class="flex items-center justify-center overflow-x-auto scrollbar-hide">
+                <div class="flex space-x-4">
 
-          <!-- Categories --------------------------------- -->
-            <div class="flex items-center">
-                <button class="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-red-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </button>
-                <div class="flex-1 overflow-x-auto scrollbar-hide">
-                    <div class="flex space-x-8 px-4">
-                        <a href="#" class="text-gray-600 hover:text-red-600 whitespace-nowrap">Web Development</a>
-                        <a href="#" class="text-gray-600 hover:text-red-600 whitespace-nowrap">Mobile Development</a>
-                        <a href="#" class="text-red-600 border-b-2 border-red-600 whitespace-nowrap">Programming Language</a>
-                        <a href="#" class="text-gray-600 hover:text-red-600 whitespace-nowrap">Game Development</a>
-                        <a href="#" class="text-gray-600 hover:text-red-600 whitespace-nowrap">Database Administration</a>
-                        <a href="#" class="text-gray-600 hover:text-red-600 whitespace-nowrap">Data Science</a>
-                        <a href="#" class="text-gray-600 hover:text-red-600 whitespace-nowrap">Design</a>
-                        <a href="#" class="text-gray-600 hover:text-red-600 whitespace-nowrap">cyber security</a>
-                    </div>
+              <a href="./student.php?all_courses" class="text-gray-600 bg-gray-50 hover:text-red-600 hover:bg-red-50 whitespace-nowrap px-3 py-1 rounded-full"> All Courses</a>
+              <?php foreach($popularCategories as $category): ?>
+                <form action="" method="GET">
+                  <input type="hidden" name="category_name" value="<?php echo $category['name']; ?>">
+                    <button type="submit" class="category-btn text-gray-600 bg-gray-50 hover:text-red-600 hover:bg-red-50 whitespace-nowrap px-3 py-1 rounded-full">
+                          <?php echo $category['name']; ?>
+                    </button>
+                 </form>
+              <?php endforeach; ?>
                 </div>
-                <button class="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-red-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                </button>
             </div>
+
         </div>
     </div>
 
-  <!---------------------------------------------- Courses Section ------------------------------------------------->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <!---------------------------------------------- Courses Section -------------------------------------------------> 
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <?php if(!isset($_GET['search']) && !isset($_GET['category_name'])): ?>
+        <!---------------------------------------------- All Courses -------------------------------------------------> 
         <div class="mb-8">
-            <h2 class="text-xl font-semibold">Programming Language</h2>
+            <h2 class="text-xl font-semibold">All Courses</h2>
         </div>
-      <!-- Courses Container ------------------------------------------------ -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Course Card ---------------------------------------------------------------------------------------------->
                <?php foreach($courseInfo AS $course):  $Enrolled = $student->isEnrolled($student_id, $course['id']); ?>
               <div class="bg-white rounded-lg overflow-hidden shadow-sm border hover:shadow-md transition-shadow">
                   <div class="relative">
@@ -179,41 +193,140 @@
                   </div>
               </div>
               <?php endforeach; ?>
-          <!-- -------------------------------------------------------------------------------------------- -->
-
-            
         </div>
-    
-    </div>
+    <?php elseif(isset($_GET['category_name'])): ?>
+      <div class="mb-8">
+            <h2 class="text-xl font-semibold"><?php echo $_GET['category_name']; ?></h2>
+      </div>
+      <?php if ($coursesByCategory): ?>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <?php foreach($coursesByCategory AS $course):  $Enrolled = $student->isEnrolled($student_id, $course['id']); ?>
+                  <div class="bg-white rounded-lg overflow-hidden shadow-sm border hover:shadow-md transition-shadow">
+                  <div class="relative">
+                      <img src="<?php echo $course['image']; ?>" alt="" class="w-full h-48 object-cover">
+                  </div>
+                  <div class="p-4">
+                      <h3 class="text-lg font-semibold mb-2"><?php echo $course['title']; ?></h3>
+                      
+                      <div class="flex items-center text-sm text-gray-500 mb-4">
+                          <div class="flex items-center space-x-4">
+                              <span class="bg-gray-100 px-2 py-1 rounded"><?php echo $course['level']; ?></span>
+                              <div class="flex items-center">
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                      <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                                  </svg>
+                                  <span><?php echo $course['total_enrollments']; ?></span>
+                              </div>
+                              <div class="flex items-center">
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                  </svg>
+                                  <span><?php echo $course['course_duration']; ?></span>
+                              </div>
+                          </div>
+                      </div>
+                    
+                      <div class="flex justify-between items-center space-x-4">
+                          <form action="" method="POST" class="flex-1">
+                            <input type="hidden" name="course_id" value="<?php echo $course['id'] ?>">
+                            <input type="hidden" name="student_id" value="<?php echo $student_id ?>">
+                            <button type="submit" name="enroll-course" class="w-full border border-red-600 text-red-600 py-2 px-4 rounded-md hover:bg-red-50 transition-colors duration-200 flex items-center justify-center">
+                                  <?php echo $Enrolled ? "Enrolled" : "Enroll Now"; ?>
+                            </button>
+                          </form>
+                          <form action="" method="POST" class="flex-1">
+                              <input type="hidden" name="student_id" value="<?php echo $student_id ?>">
+                              <input type="hidden" name="course_id" value="<?php echo $course['id'] ?>">
+                              <button type="submit" name="view-course-details" class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors duration-200 flex items-center justify-center">
+                                  View Details
+                              </button>
+                          </form>                    
+                      </div>
+                  </div>
+              </div>
+              <?php endforeach; ?>
+        </div>
+        <?php else: ?>
+                <p class="text-gray-600">No courses added yet</p>
+        <?php endif; ?>
+
+    <?php elseif(isset($_GET['search'])): ?>
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold">Search Results</h2>
+        </div>
+            <?php if ($searchedValue): ?>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <?php foreach($searchedValue AS $course):  $Enrolled = $student->isEnrolled($student_id, $course['id']); ?>
+                  <div class="bg-white rounded-lg overflow-hidden shadow-sm border hover:shadow-md transition-shadow">
+                  <div class="relative">
+                      <img src="<?php echo $course['image']; ?>" alt="" class="w-full h-48 object-cover">
+                  </div>
+                  <div class="p-4">
+                      <h3 class="text-lg font-semibold mb-2"><?php echo $course['title']; ?></h3>
+                      
+                      <div class="flex items-center text-sm text-gray-500 mb-4">
+                          <div class="flex items-center space-x-4">
+                              <span class="bg-gray-100 px-2 py-1 rounded"><?php echo $course['level']; ?></span>
+                              <div class="flex items-center">
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                      <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                                  </svg>
+                                  <span><?php echo $course['total_enrollments']; ?></span>
+                              </div>
+                              <div class="flex items-center">
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                  </svg>
+                                  <span><?php echo $course['course_duration']; ?></span>
+                              </div>
+                          </div>
+                      </div>
+                    
+                      <div class="flex justify-between items-center space-x-4">
+                          <form action="" method="POST" class="flex-1">
+                            <input type="hidden" name="course_id" value="<?php echo $course['id'] ?>">
+                            <input type="hidden" name="student_id" value="<?php echo $student_id ?>">
+                            <button type="submit" name="enroll-course" class="w-full border border-red-600 text-red-600 py-2 px-4 rounded-md hover:bg-red-50 transition-colors duration-200 flex items-center justify-center">
+                                  <?php echo $Enrolled ? "Enrolled" : "Enroll Now"; ?>
+                            </button>
+                          </form>
+                          <form action="" method="POST" class="flex-1">
+                              <input type="hidden" name="student_id" value="<?php echo $student_id ?>">
+                              <input type="hidden" name="course_id" value="<?php echo $course['id'] ?>">
+                              <button type="submit" name="view-course-details" class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors duration-200 flex items-center justify-center">
+                                  View Details
+                              </button>
+                          </form>                    
+                      </div>
+                  </div>
+              </div>
+              <?php endforeach; ?>
+        </div>
+        <?php else: ?>
+                <p class="text-gray-600">No courses found</p>
+              <?php endif; ?>
+    <?php endif; ?> 
+</div>
 <!-- Pagination -->
 <div class="flex justify-center items-center space-x-2 mt-12 border border-gray-200 p-4 rounded-lg">
-    <!-- First page button -->
-    <a href="#" class="p-2 text-gray-700 hover:text-red-700 hover:border-red-600 rounded-md transition-colors border border-gray-600">
+    <a href="?page-nr=1"  class="p-2 text-gray-700 hover:text-red-700 hover:border-red-600 rounded-md transition-colors border border-gray-600">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M9.707 4.293a1 1 0 010 1.414L5.414 10l4.293 4.293a1 1 0 11-1.414 1.414l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 0z" clip-rule="evenodd"/>
             <path fill-rule="evenodd" d="M15.707 4.293a1 1 0 010 1.414L11.414 10l4.293 4.293a1 1 0 11-1.414 1.414l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 0z" clip-rule="evenodd"/>
         </svg>
     </a>
-
-
-    <!-- Current/Active page -->
-    <a href="#" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
-        1
-    </a>
-
-    <!-- Other pages -->
-    <a href="#" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
-        2
-    </a>
-    <a href="#" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
-        3
-    </a>
-    <a href="#" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
-        4
-    </a>
-
-    <!-- Last page button -->
-    <a href="#" class="p-2 text-gray-700 hover:text-red-700 hover:border-red-600 rounded-md transition-colors border border-gray-600">
+    <?php for ($i = 1; $i <= $pages; $i++): ?>
+        <?php if ($i == $current_page): ?>
+            <a href="?page-nr=<?= $i ?>" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                <?= $i ?>
+            </a>
+        <?php else: ?>
+            <a href="?page-nr=<?= $i ?>" class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                <?= $i ?>
+            </a>
+        <?php endif; ?>
+    <?php endfor; ?>
+    <a href="?page-nr=<?php echo $pages; ?>"  class="p-2 text-gray-700 hover:text-red-700 hover:border-red-600 rounded-md transition-colors border border-gray-600">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
             <path fill-rule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
@@ -307,6 +420,6 @@
         </div>
     </div>
 </footer>
-<script src="../../assets/js/script.js"></script>
+<script src="../../assets/js/index.js"></script>
 </body>
 </html>

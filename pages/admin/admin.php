@@ -2,6 +2,11 @@
     session_start();
     $admin_id = $_SESSION['admin_id'];
     $admin_name = $_SESSION['admin_name'];
+    
+    if(!isset($_SESSION['admin_id']) && !isset($_SESSION['admin_name'])){
+      header('Location: ../auth/login.php');
+      exit;
+   }
 
     require_once "../../config/conn.php";
     require_once "./../../models/user.php";
@@ -16,8 +21,16 @@
 
     $courses_details = new Admin($conn);
     $allCourses = $courses_details->allCourses_details();
-    $allCategories =$courses_details->getAllCategories();
-    $allTags =$courses_details->getallTags();
+    $allCategories = $courses_details->getAllCategories();
+    $allTags = $courses_details->getAllTags();
+
+    $statistic = new Admin($conn);
+    $totalUsers = $statistic->totalUsers();
+    $totalCourses = $statistic->totalCourses();
+    $totalPendingTeachers = $statistic->totalPendingTeachers();
+    $totalCategories = $statistic->totalCategories();
+    $topTeachers = $statistic->topTeachers();
+    $coursesByCategory = $statistic->coursesByCategory();
 
 ?>
 
@@ -93,7 +106,7 @@
                     </svg>
                     <span>Teachers Validation</span>
                 </a>
-                <a href="#" class="flex items-center space-x-3 p-3 hover:bg-gray-800 rounded-lg">
+                <a href="#" id="statistics" class="flex items-center space-x-3 p-3 hover:bg-gray-800 rounded-lg">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                     </svg>
@@ -139,7 +152,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-600">Total Users</p>
-                        <h3 class="text-3xl font-bold">3</h3>
+                        <h3 class="text-3xl font-bold"><?php if($totalUsers): echo $totalUsers['total_users']; endif; ?></h3>
                         <p class="text-green-600 text-sm mt-1">+2 today</p>
                     </div>
                     <div class="p-3 bg-red-100 rounded-full">
@@ -154,7 +167,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-600">Total Courses</p>
-                        <h3 class="text-3xl font-bold">5</h3>
+                        <h3 class="text-3xl font-bold"><?php if($totalCourses): echo $totalCourses['total_courses']; endif; ?></h3>
                         <p class="text-green-600 text-sm mt-1">+3 today</p>
                     </div>
                     <div class="p-3 bg-red-100 rounded-full">
@@ -169,7 +182,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-600">Pending Teachers</p>
-                        <h3 class="text-3xl font-bold">2</h3>
+                        <h3 class="text-3xl font-bold"><?php if($totalPendingTeachers): echo $totalPendingTeachers['total_pending_teachers']; endif; ?></h3>
                         <p class="text-yellow-600 text-sm mt-1">Needs review</p>
                     </div>
                     <div class="p-3 bg-red-100 rounded-full">
@@ -184,7 +197,7 @@
                 <div class="flex items-center justify-between">
                 <div>
                         <p class="text-gray-600">Categories</p>
-                        <h3 class="text-3xl font-bold">8</h3>
+                        <h3 class="text-3xl font-bold"><?php if($totalCategories): echo $totalCategories['total_categories']; endif; ?></h3>
                         <p class="text-blue-600 text-sm mt-1">4 main categories</p>
                     </div>
                     <div class="p-3 bg-red-100 rounded-full">
@@ -667,121 +680,32 @@
     </div>
 </div>
 
+
 <!-- -------------------------------------------------------------------------- -->
 
-<script>
-  
-            const menuButton = document.getElementById('menuButton');
-            const closeSidebar = document.getElementById('closeSidebar');
-            const sidebar = document.getElementById('sidebar');
+  <div id="statistic-section" class="bg-white rounded-lg shadow-sm border p-4 lg:p-6 hidden ">
+    <h3 class="text-lg font-semibold mb-4">Top 3 Teachers</h3>
+    <div class="space-y-4">
+      <?php foreach($topTeachers as $top): ?>
+        <div class="p-4 bg-gray-50 rounded-lg">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <span class="text-red-600 font-semibold"><?php  echo $top['teacher_name'][0]. $top['teacher_name'][1]; ?></span>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-semibold"><?php  echo $top['teacher_name']; ?></h4>
+                    </div>
+                    <p class="text-sm text-gray-600"><?php echo $top['total_students']; ?> students</p>
 
-            menuButton.addEventListener('click', () => {
-                sidebar.classList.remove('-translate-x-full');
-            });
+                </div>
+            </div>
+        </div>
+        <?php endforeach; ?>  
+    </div>
+  </div>
 
-            closeSidebar.addEventListener('click', () => {
-                sidebar.classList.add('-translate-x-full');
-            });
-            const seeAllTeachersBtn = document.getElementById('seeAllTeachers');
-            const listAllTeachers = document.getElementById('listAllTeachers');
-            const seeAllUsersBtn = document.getElementById('seeAllUsers');
-            const listAllUsers = document.getElementById('listAllUsers');
-            const seeAllTeachers_section = document.getElementById('seeAllTeachers-section');
-            const seeAllUsers_section = document.getElementById('seeAllUsers-section');
-            const usersManagement = document.getElementById('usersManagement');
-            const teacherValidation = document.getElementById('teacherValidation');
-
-            seeAllTeachersBtn.addEventListener('click', () => {
-                seeAllTeachers_section.style.display = 'none';
-                seeAllUsers_section.style.display = 'none';
-                listAllTeachers.style.display = 'block';
-                listAllUsers.style.display = 'none';
-                tableCourses.style.display = 'none';
-                tagsCategoriesList.style.display= "none";
-            });
-
-            seeAllUsersBtn.addEventListener('click', () => {
-                seeAllTeachers_section.style.display = 'none';
-                seeAllUsers_section.style.display = 'none';
-                listAllTeachers.style.display = 'none';
-                listAllUsers.style.display = 'block';
-                tableCourses.style.display = 'none';
-                tagsCategoriesList.style.display= "none";
-            });
-
-            usersManagement.addEventListener('click', () => {
-                seeAllTeachers_section.style.display = 'none';
-                seeAllUsers_section.style.display = 'none';
-                listAllTeachers.style.display = 'none';
-                listAllUsers.style.display = 'block';
-                tableCourses.style.display = 'none';
-                tagsCategoriesList.style.display= "none";
-            });
-
-            teacherValidation.addEventListener('click', () => {
-                seeAllTeachers_section.style.display = 'none';
-                seeAllUsers_section.style.display = 'none';
-                listAllUsers.style.display = 'none';
-                listAllTeachers.style.display = 'block';
-                tableCourses.style.display = 'none';
-                tagsCategoriesList.style.display= "none";
-            }); 
-            
-            const tableCourses = document.getElementById('tableCourses');
-            const coursesManagement = document.getElementById('coursesManagement');
-
-            coursesManagement.addEventListener('click',()=>{
-              tableCourses.style.display = 'block';
-              seeAllTeachers_section.style.display = 'none';
-              seeAllUsers_section.style.display = 'none';
-              listAllUsers.style.display = 'none';
-              listAllTeachers.style.display = 'none';
-              tagsCategoriesList.style.display= "none";
-            })
-
-            const addTagsBtn= document.getElementById('addTagsBtn');
-            const addTagsModal= document.getElementById('addTagsModal');
-            const closeModalBtn= document.getElementById('closeTagsModalBtn');
-            const addCategoryBtn= document.getElementById('addCategoryBtn');
-            const addCategoryModal= document.getElementById('addCategoryModal');
-            const closeCategoryModal= document.getElementById('closeCategoryModal');
-            const cancelTagBtn= document.getElementById('cancelTagBtn');
-            const cancelCategoryBtn= document.getElementById('cancelCategoryBtn');
-
-            addTagsBtn.addEventListener('click',()=>{
-              addTagsModal.style.display= "flex";
-            })
-            closeModalBtn.addEventListener('click',()=>{
-              addTagsModal.style.display="none";
-            })
-            cancelTagBtn.addEventListener('click',()=>{
-              addTagsModal.style.display="none";
-            })
-
-            addCategoryBtn.addEventListener('click',()=>{
-              addCategoryModal.style.display= "flex";
-            })
-
-            closeCategoryModal.addEventListener('click',()=>{
-              addCategoryModal.style.display="none";   
-            })
-            cancelCategoryBtn.addEventListener('click',()=>{
-              addCategoryModal.style.display="none";   
-            })
-
-            const tagsCategoriesBtn= document.getElementById('tags&categoriesBtn');
-            const tagsCategoriesList= document.getElementById('tags&categoriesList');
-
-            tagsCategoriesBtn.addEventListener('click',()=>{
-              tagsCategoriesList.style.display= "block";
-              tableCourses.style.display = 'none';
-              seeAllTeachers_section.style.display = 'none';
-              seeAllUsers_section.style.display = 'none';
-              listAllUsers.style.display = 'none';
-              listAllTeachers.style.display = 'none';
-            })
-
-</script>
+  <script src="../../assets/js/admin.js"></script>
 
 </body>
 </html>

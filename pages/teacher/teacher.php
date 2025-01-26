@@ -2,6 +2,11 @@
     session_start();
     $teacher_id = $_SESSION['teacher_id'];
     $teacher_name = $_SESSION['teacher_name'];
+
+    if(!isset($_SESSION['teacher_id']) && !isset($_SESSION['teacher_name'])){
+       header('Location: ../auth/login.php');
+       exit;
+    }
   
     require_once "../../config/conn.php";
     $db = new Database();
@@ -15,17 +20,16 @@
     $teacher = new Teacher($conn);
     $allCourses = $teacher->getAllCourses($teacher_id);
     $lastCourses = $teacher->getLastCourses($teacher_id);
+    $enrollments = $teacher->getEnrollments($teacher_id);
+    $lastEnrollments = $teacher->getLastEnrollments($teacher_id);
+    $totalStudents = $teacher->totalStudents($teacher_id);
+    $totalCourses = $teacher->totalCourses($teacher_id);
+    $totalCategories = $teacher->totalCategories($teacher_id);
   
-
-    $courses = new Courses($conn);
-    $enrollments = $courses->getEnrollments();
-    $lastEnrollments = $courses->getLastEnrollments();
-
     $getData = new Admin($conn);
     $allTags = $getData->getallTags();
     $allCategories = $getData->getAllCategories();
-
-    
+  
 ?>
 
 <!DOCTYPE html>
@@ -90,13 +94,6 @@
                         <span>Students</span>
                     </a>
                 </div>
-                <a href="#" id="profileButton" class="flex items-center space-x-3 p-3 hover:bg-gray-800 rounded-lg">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    <span>Profile</span>
-                </a>
                 <a href="./../auth/logout.php" class="flex items-center space-x-3 p-3 hover:bg-gray-800 rounded-lg text-red-500">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
@@ -128,7 +125,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-600">Total Students</p>
-                        <h3 class="text-3xl font-bold">120</h3>
+                        <h3 class="text-3xl font-bold"><?php if($totalStudents): echo $totalStudents['total_students']; endif; ?></h3>
                         <p class="text-green-600 text-sm mt-1">+5 today</p>
                     </div>
                     <div class="p-3 bg-red-100 rounded-full">
@@ -143,8 +140,8 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-gray-600">Total Cours</p>
-                        <h3 class="text-3xl font-bold">5</h3>
-                        <p class="text-green-600 text-sm mt-1">+2 today</p>
+                        <h3 class="text-3xl font-bold"><?php if($totalCourses): echo $totalCourses['total_courses']; endif; ?></h3>
+                        <p class="text-green-600 text-sm mt -1">+2 today</p>
                     </div>
                     <div class="p-3 bg-red-100 rounded-full">
                         <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,14 +154,14 @@
             <div class="bg-white p-6 rounded-lg shadow-sm border">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-600">Total hours</p>
-                        <h3 class="text-3xl font-bold">256</h3>
+                        <p class="text-gray-600">Total Categories</p>
+                        <h3 class="text-3xl font-bold"><?php if($totalCategories): echo $totalCategories['total_categories']; endif; ?></h3>
                         <p class="text-green-600 text-sm mt-1">+3 today</p>
                     </div>
                     <div class="p-3 bg-red-100 rounded-full">
-                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253"/>
+                    </svg>
                     </div>
                 </div>
             </div>
@@ -238,7 +235,7 @@
     </div>
       <!-- ------------------------------------------ Enrollments by Course ---------------------------------------------- -->
 <?php if (isset($_GET['courseId']) && isset($_GET['action']) && $_GET['action'] === 'seeEnrollments'):
-    $enrollmentsCourse = $courses->enrollmentsByCourse($_GET['courseId']); ?>
+    $enrollmentsCourse = $teacher->enrollmentsByCourse($_GET['courseId']); ?>
 
 <div id="enrollmentsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
     <div class="bg-white rounded-lg w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
@@ -579,7 +576,7 @@
 <!-- ----------------------------------------------- Edit Course Modal --------------------------------------------------------- -->
 <?php if(isset($_GET['courseId']) && isset($_GET['action']) && $_GET['action'] === 'editCourse' ):
     $course_id = $_GET['courseId'];
-    $editCourse = $courses->getCourseForEdit($course_id);
+    $editCourse = $teacher->getCourseForEdit($course_id);
     if($editCourse):
   ?>
 <div id="editCourseModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
@@ -739,11 +736,19 @@
                 <div class="flex justify-end space-x-4 mt-6">
                   <input type="hidden" name="teacher_id" value="<?php echo $teacher_id ;?>">
                   <input type="hidden" name="course_id" value="<?php echo $course_id ;?>">
-                    <button 
+                    <!-- <button 
                         id ="cancelEditCourse"
                         class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
                     >
                       Cancel
+                    </button> -->
+                    <button 
+                        type="submit"
+                        type="button"
+                        name="new_save_draft"
+                        class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                    >
+                        Save Draft
                     </button>
                     <button 
                         type="submit"
@@ -758,119 +763,6 @@
     </div>
     <?php endif; endif; ?>
 <!-- --------------------------------------------------------------------------------------------------- -->
-    <script>
-
-      const menuButton = document.getElementById('menuButton');
-      const closeSidebarButton = document.getElementById('closeSidebar');
-      const sidebar = document.getElementById('sidebar');
-      const menuButtonContainer = menuButton.parentElement; 
-
-      menuButton.addEventListener('click', () => {
-          sidebar.classList.remove('-translate-x-full');
-          menuButtonContainer.classList.add('hidden');
-      });
-
-      closeSidebarButton.addEventListener('click', () => {
-          sidebar.classList.add('-translate-x-full');
-          menuButtonContainer.classList.remove('hidden'); 
-      });
-
-      window.addEventListener('resize', () => {
-          if (window.innerWidth >= 1024) { 
-              menuButtonContainer.classList.add('hidden');
-          } else if (sidebar.classList.contains('-translate-x-full')) {
-              menuButtonContainer.classList.remove('hidden');
-          }
-      });
-        // --------------------------------------------------------------------
-        const addCourseButton = document.getElementById('newCourse');
-        const modal = document.getElementById('addCourseModal');
-        const closeModal = document.getElementById('closeModal');
-
-        function openModal() {
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function hideModal() {
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-
-        addCourseButton.addEventListener('click', openModal);
-        closeModal.addEventListener('click', hideModal);
-
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                hideModal();
-            }
-        });
-        
-        // --------------------------------------------------------------------
-        const coursesButton = document.getElementById('coursesButton');
-        const allCourses = document.getElementById('allCourses');
-        const studentsButton = document.getElementById('studentsButton');
-        const studentsList = document.getElementById('studentsList');
-        const lastCrsEnroll = document.getElementById('last-courses-enrollements-section');
-        const seeMoreEnroll = document.getElementById('seeMoreEnroll');
-        const seeMoreCourses = document.getElementById('seeMoreCourses');
-        const closeEnrollModal = document.getElementById('closeEnrollModal');
-        const enrollmentsModal = document.getElementById('enrollmentsModal');
-        const editCourseModal = document.getElementById('editCourseModal');
-        const closeEditCourseModal = document.getElementById('closeEditCourseModal');
-
-        if(enrollmentsModal){
-              closeEnrollModal.addEventListener('click', () => {
-              enrollmentsModal.classList.add('hidden');
-              window.location.href="./teacher.php";
-          });   
-        }
-        
-        if(editCourseModal){
-          closeEditCourseModal.addEventListener('click', () => {
-              editCourseModal.classList.add('hidden');
-              window.location.href="./teacher.php";
-          });
-        }
-
-        coursesButton.addEventListener('click', () => {
-          allCourses.style.display = 'block';
-          studentsList.style.display = 'none';
-          lastCrsEnroll.style.display = 'none';
-        });
-
-        studentsButton.addEventListener('click', () => {
-          allCourses.style.display = 'none';
-          studentsList.style.display = 'block';
-          lastCrsEnroll.style.display = 'none';
-        });
-        seeMoreCourses.addEventListener('click', () => {
-          allCourses.style.display = 'block';
-          studentsList.style.display = 'none';
-          lastCrsEnroll.style.display = 'none';
-        });
-        seeMoreEnroll.addEventListener('click', () => {
-          allCourses.style.display = 'none';
-          studentsList.style.display = 'block';
-          lastCrsEnroll.style.display = 'none';
-        });
-  //  -------------------------------------------------------------------
-  
-  function toggleContentInputs() {
-        const contentType = document.querySelector('.contentType').value;
-        const videoInput = document.querySelector('.videoInput');
-        const textInput = document.querySelector('.textInput');
-
-        if (contentType === 'video') {
-            videoInput.classList.remove('hidden');
-            textInput.classList.add('hidden');
-        } else if (contentType === 'document') {
-            textInput.classList.remove('hidden');
-            videoInput.classList.add('hidden');
-        }
-    }
-        
-
-    </script>
+<script src="../../assets/js/teacher.js"></script>
 </body>
 </html>

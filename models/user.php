@@ -3,13 +3,10 @@
     class User
     {
       private $conn;
-      public function __construct($connection)
-      {
+      public function __construct($connection){
           $this->conn = $connection;
-      }
-
-      public function signup($name, $email, $password, $role, $status)
-      {
+        }
+      public function signup($name, $email, $password, $role, $status){
           $sql = "SELECT id FROM users WHERE name = :name";
           $stmt = $this->conn->prepare($sql);
           $stmt->execute([':name' => $name]);
@@ -27,10 +24,8 @@
           } catch (PDOException $e) {
              die("Erreur in signup : " . $e->getMessage()) ;
           }
-      }
-
-      public function login($email, $password)
-      {
+        }
+      public function login($email, $password){
           try {
               $sql = "SELECT id, name, email, password, role, status FROM users WHERE email = :email";
               $stmt = $this->conn->prepare($sql);
@@ -49,11 +44,11 @@
           } catch (Exception $e) {
               return ['message' => "Error in login: " . $e->getMessage()];
           }
-      }
+        }
 
       public function getLastUsers(){
         try{
-          $sql = "SELECT * FROM users WHERE status = 'active' OR status = 'suspended' ORDER BY created_at DESC LIMIT 4";
+          $sql = "SELECT * FROM users WHERE status = 'active' OR status = 'suspended' ORDER BY created_at DESC LIMIT 3";
           $stmt = $this->conn->prepare($sql);
           $stmt->execute();
           return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -61,11 +56,11 @@
         catch(Exception $e){
            die("Error in getting last users: " . $e->getMessage());
         }
-      }
+        }
     
       public function getLastTeachers(){
         try{
-          $sql = "SELECT * FROM users WHERE role = 'teacher' AND status != 'suspended' ORDER BY created_at DESC LIMIT 4";
+          $sql = "SELECT * FROM users WHERE role = 'teacher' AND status != 'suspended' ORDER BY created_at DESC LIMIT 3";
           $stmt = $this->conn->prepare($sql);
           $stmt->execute();
           return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -74,7 +69,7 @@
           error_log("Error in getting Last Teachers: " . $e->getMessage());
           return false;
         }
-      }
+        }
       
       public function getAllUsers(){
         try{
@@ -87,10 +82,9 @@
           error_log("Error in getting all Users: " . $e->getMessage());
           return false;
         }
-      }
+        }
     
-      public function getAllTeachers()
-      {
+      public function getAllTeachers(){
         try{
           $sql = "SELECT * FROM users WHERE role = 'teacher' AND status != 'suspended'";
           $stmt = $this->conn->prepare($sql);
@@ -101,10 +95,9 @@
           error_log("Error in getting all Teachers: " . $e->getMessage());
           return false;
         }
-      }
+        }
     
-      public function getAllStudents()
-      {
+      public function getAllStudents(){
         try{
           $sql = "SELECT * FROM users WHERE role = 'student'";
           $stmt = $this->conn->prepare($sql);
@@ -115,7 +108,7 @@
           error_log("Error in getting all Students: " . $e->getMessage());
           return false;
         }
-      }
+        }
     }
 
 ?>

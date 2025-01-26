@@ -7,25 +7,25 @@
 // -------------------------------------------------------------------- Add Course
     if($_SERVER['REQUEST_METHOD'] === 'POST') {
       if(isset($_POST['publish_course']) || isset($_POST['save_draft'])) {
-        $title = $_POST['title'];
-        $description = $_POST['description'];
-        $image = $_POST['image_url'];
-        $content_type = $_POST['content_type'];
+        $title = htmlspecialchars(trim($_POST['title'])); 
+        $description = htmlspecialchars(trim($_POST['description']));
+        $image = htmlspecialchars(trim($_POST['image_url']));
+        $content_type = htmlspecialchars(trim($_POST['content_type']));
 
         if ($content_type === 'video') {
-          $content_video = $_POST['video_url'];
+          $content_video = htmlspecialchars(trim($_POST['video_url']));
           $content_text = null;
         } elseif ($content_type === 'document') {
-          $content_text = $_POST['content'];
+          $content_text = htmlspecialchars(trim($_POST['content']));
           $content_video = null;
         }
-        $duration = $_POST['duration'];
-        $level = $_POST['level'];
+        $duration = htmlspecialchars(trim($_POST['duration']));
+        $level = htmlspecialchars(trim($_POST['level']));
 
-        $category_id = $_POST['category'];
-        $user_id = $_POST['teacher_id'];
+        $category_id = htmlspecialchars(trim($_POST['category']));
+        $user_id = htmlspecialchars(trim($_POST['teacher_id']));
 
-        $tags = $_POST['selected_tags'];
+        $tags = htmlspecialchars(trim($_POST['selected_tags']));
 
         if(isset($_POST['publish_course'])) {
           $status = 'Published';
@@ -53,26 +53,31 @@
         exit;
       }
 
-      if(isset($_POST['update_course'])){
-        $course_id = $_POST['course_id'];
-        $title = $_POST['new_title'];
+      if(isset($_POST['update_course']) || isset($_POST['new_save_draft'])) {
+        $course_id = htmlspecialchars(trim($_POST['course_id']));
+        $title = htmlspecialchars(trim($_POST['new_title']));
         $description = $_POST['new_description'];
         $image = $_POST['new_image_url'];
-        $content_type = $_POST['new_content_type'];
+        $content_type = htmlspecialchars(trim($_POST['new_content_type']));
 
         if ($content_type === 'video') {
-          $content_video = $_POST['new_video_url'];
+          $content_video = htmlspecialchars(trim($_POST['new_video_url']));
           $content_text = null;
         } elseif ($content_type === 'document') {
-          $content_text = $_POST['new_content'];
+          $content_text = htmlspecialchars(trim($_POST['new_content']));
           $content_video = null;
         }
-        $duration = $_POST['new_duration'];
-        $level = $_POST['level'];
-        $category_id = $_POST['new_category'];
-        $user_id = $_POST['teacher_id'];
-        $tags = $_POST['new_selected_tags'];
-        $status = 'Published';
+        $duration = htmlspecialchars(trim($_POST['new_duration']));
+        $level = htmlspecialchars(trim($_POST['level']));
+        $category_id = htmlspecialchars(trim($_POST['new_category']));
+        $user_id = htmlspecialchars(trim( $_POST['teacher_id']));
+        $tags = htmlspecialchars(trim($_POST['new_selected_tags']));
+        if(isset($_POST['new_save_draft'])){
+          $status = 'Draft';
+        }
+        else{
+          $status = 'Published';
+        }
         $update = new Courses($conn);
 
         $update->updateCourse($course_id, $title, $description, $image, $content_type, $content_text, $content_video, $duration, $level, $category_id, $user_id, $status);

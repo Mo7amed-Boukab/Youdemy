@@ -2,7 +2,10 @@
     session_start();
 
     $student_id =  $_SESSION['student_id'];
-
+    if(!isset($_SESSION['student_id']) && !isset($_SESSION['student_name'])){
+      header('Location: ../auth/login.php');
+      exit;
+   }
     require_once "../../config/conn.php";
 
     $db = new Database();
@@ -38,7 +41,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div>
-                    <a href="index.php" class="flex items-center space-x-2">
+                    <a href="./student.php" class="flex items-center space-x-2">
                         <span class="text-2xl font-bold text-red-600">YOUDEMY</span>
                     </a>
                 </div>
@@ -214,41 +217,6 @@
             <?php endif; endforeach; ?>
         </div>
   </div>
-  <script>
-          const allCoursesBtn = document.getElementById('allCoursesBtn');
-          const inProgressBtn = document.getElementById('inProgressBtn');
-          const completedBtn = document.getElementById('completedBtn'); 
-          const inProgressCourses = document.getElementById('inProgressCourses');
-          const toStartCourses = document.getElementById('toStartCourses');
-          const completedCourses = document.getElementById('completedCourses');
-
-          allCoursesBtn.addEventListener('click', () => {
-            inProgressBtn.classList.remove('active-btn');
-            completedBtn.classList.remove('active-btn');
-            allCoursesBtn.classList.add('active-btn');
-            toStartCourses.classList.remove('hidden');
-            inProgressCourses.classList.add('hidden');
-            completedCourses.classList.add('hidden');
-          });
-
-          inProgressBtn.addEventListener('click', () => {
-            allCoursesBtn.classList.remove('active-btn');
-            completedBtn.classList.remove('active-btn');
-            inProgressBtn.classList.add('active-btn');
-            toStartCourses.classList.add('hidden');
-            completedCourses.classList.add('hidden');
-            inProgressCourses.classList.remove('hidden');    
-          });
-
-          completedBtn.addEventListener('click', () => {
-            allCoursesBtn.classList.remove('active-btn');
-            inProgressBtn.classList.remove('active-btn');
-            completedBtn.classList.add('active-btn');
-            toStartCourses.classList.add('hidden');
-            inProgressCourses.classList.add('hidden');
-            completedCourses.classList.remove('hidden');
-          });
-
-  </script>
+  <script src="../../assets/js/enrollments.js"></script>
 </body>
 </html>

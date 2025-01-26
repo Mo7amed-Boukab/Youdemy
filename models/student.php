@@ -6,10 +6,9 @@
     class Student extends Courses
     {
       
-      public function __construct($connection)
-      {
+      public function __construct($connection){
           parent::__construct($connection); 
-      }
+        }
 
       public function getMyEnrollments($student_id){
         try{
@@ -27,7 +26,7 @@
           error_log("Error in getting enrollments : " . $e->getMessage());
           return false;
         }
-      }
+          }
 
       public function isEnrolled($student_id, $course_id){
         try{
@@ -41,7 +40,7 @@
           return false;
         }
 
-    }
+        }
 
   }
 

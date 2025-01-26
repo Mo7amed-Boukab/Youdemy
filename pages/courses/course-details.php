@@ -6,12 +6,14 @@
     $conn = $db->connect();
 
     require_once "../../models/courses.php";
-   
+    require_once "../../models/student.php";
+    require_once "../../controllers/studentController.php";
+    require_once "../../controllers/courseController.php";
+
     $course_id = $_SESSION['course_id'];
     $course = new Courses($conn);
     $courseDetails = $course->course_details($course_id);
 
-    require_once "../../models/student.php";
     $Enrolled = false;
     if(isset($_SESSION['student_id'])){
       $student_id =  $_SESSION['student_id'];
@@ -40,14 +42,24 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div>
-                    <a href="index.php" class="flex items-center space-x-2">
+                    <a href="../../index.php" class="flex items-center space-x-2">
                         <span class="text-2xl font-bold text-red-600">YOUDEMY</span>
                     </a>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="./pages/auth/signup.php" class="text-red-600 px-4 py-2 rounded-md hover:text-red-700">Sign In</a>
-                    <a href="./pages/auth/login.php" class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700">Log In</a>
+                <?php if(isset($_SESSION['student_id'])) : ?>
+                  <div class="flex items-center space-x-4 md:space-x-8">
+                    <div class="flex items-center space-x-4">
+                        <a href="./../student/student.php" class="text-gray-600 hover:text-red-600 transition-colors">Home</a>
+                    </div>
+                    <a href="./../auth/logout.php" class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700">Log Out</a>
+                  <?php else: ?>  
+                    <a href="./../auth/signup.php" class="text-red-600 px-4 py-2 rounded-md hover:text-red-700">Sign In</a>
+                    <a href="./../auth/login.php" class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700">Log In</a>
+                  <?php endif;?>
                 </div>
+                </div>
+  
             </div>
         </div>
     </nav>
@@ -67,8 +79,7 @@
   
                         <h1 class="text-4xl font-bold text-white mb-4"><?php echo $courseDetails['title']; ?></h1>
                         <div class="flex flex-wrap gap-2 mb-6">
-                            <span class="px-3 py-1 bg-red-600/20 text-red-400 rounded-full text-sm font-medium">PHP</span>
-                            <span class="px-3 py-1 bg-red-600/20 text-red-400 rounded-full text-sm font-medium">Laravel</span>
+                            <span class="px-3 py-1 bg-red-600/20 text-red-400 rounded-full text-sm font-medium"><?php echo $courseDetails['tag_name'] ?></span>
                             <span class="px-3 py-1 bg-red-600/20 text-red-400 rounded-full text-sm font-medium">Web Development</span>
                             <span class="px-3 py-1 bg-red-600/20 text-red-400 rounded-full text-sm font-medium">Backend</span>
                         </div>
@@ -92,11 +103,23 @@
                                 <span><?php echo $courseDetails['level']; ?> Level</span>
                             </div>
                         </div>
-    
-                        <button class="bg-red-600 text-white text-left py-3 px-9 rounded-md hover:bg-red-700 transition-colors mb-2">
-                                <?php echo $Enrolled ? "Go to course" : "Enroll Now" ?>
-                        </button>
-                        
+                        <?php if(!$Enrolled): ?>
+                          <form action="" method="POST" class="flex-1">
+                              <input type="hidden" name="student_id" value="<?php echo $student_id ?>">
+                              <input type="hidden" name="course_id" value="<?php echo $courseDetails['id'] ?>">
+                              <button type="submit" name="enroll-course" class="bg-red-600 text-white text-left py-3 px-9 rounded-md hover:bg-red-700 transition-colors mb-2">
+                                      Enroll Now
+                              </button>
+                         </form> 
+                        <?php else: ?>
+                          <form action="" method="POST" class="flex-1">
+                              <input type="hidden" name="student_id" value="<?php echo $student_id ?>">
+                              <input type="hidden" name="course_id" value="<?php echo $courseDetails['id'] ?>">
+                              <button type="submit" name="show-course" class="bg-red-600 text-white text-left py-3 px-9 rounded-md hover:bg-red-700 transition-colors mb-2">
+                                      Go To Course
+                              </button>
+                         </form>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -109,35 +132,37 @@
                 <a href="#" onclick="showOverview()" id="overview-btn" class="active-btn py-4 px-1 text-sm font-medium text-gray-500">
                     Overview
                 </a>
+             <?php if(isset($_SESSION['student_id'])): ?>
                 <a href="#" onclick="showCourse()" id="course-btn" class="py-4 px-1 text-sm font-medium text-gray-500">
                     Course
                 </a>
-                
+              <?php endif; ?>   
             </nav>
         </div>
         <!-- ---------------------------------------- course content ---------------------------------------------- -->
         <div id="course-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 hidden">
-            <!-- Video/Image -->
-            <div class="mb-8">
-            <iframe
-              class="w-full h-[500px] object-cover rounded-lg shadow-lg"
-              src="<?php echo $courseDetails['content_video']; ?>"
-              title="YouTube video player"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-            ></iframe>
-          </div>
-          <!-- <div class="mb-8">
-                <img src="./assets/images/cart-img1.png" alt="Course Preview" class="w-full h-[500px] object-cover rounded-lg shadow-lg"/>
-          </div> -->
+           <?php if($courseDetails['content_type'] === 'video'):  ?>
+              <div class="mb-8">
+              <iframe
+                class="w-full h-[500px] object-cover rounded-lg shadow-lg"
+                src="<?php echo $courseDetails['content_video']; ?>"
+                title="YouTube video player"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              ></iframe>
+              </div>
+            <?php else : ?>  
+              <div class="prose max-w-none">
+                <p class="text-gray-600 mb-6">
+                    <?php echo $courseDetails['description']; ?>
+                </p>
+              </div>
+            <?php endif; ?>
         </div>
       <!-- ---------------------------------------- course description --------------------------------------- -->
         <div class="mb-8" id="overview-section">
             <div class="prose max-w-none">
-                <p class="text-gray-600 mb-6">
-                    <?php echo $courseDetails['description']; ?>
-                </p>
                 
                 <h3 class="text-xl font-bold mb-4">Requirements</h3>
                 <ul class="list-disc pl-5 text-gray-600">
@@ -242,27 +267,7 @@
         </div>
     </div>
 </footer>
-<script>
-    const overviewBtn = document.getElementById('overview-btn');
-    const courseBtn = document.getElementById('course-btn');
-    const overviewSection = document.getElementById('overview-section');
-    const courseSection = document.getElementById('course-section');
 
-    // Functions to toggle visibility
-    function showOverview() {
-      overviewSection.classList.remove('hidden');
-      courseSection.classList.add('hidden');
-      overviewBtn.classList.add('active-btn');
-      courseBtn.classList.remove('active-btn');
-    }
-
-    function showCourse() {
-      courseSection.classList.remove('hidden');
-      overviewSection.classList.add('hidden');;
-      overviewBtn.classList.remove('active-btn');
-      courseBtn.classList.add('active-btn');
-    }
-
-</script>
+<script src="../../assets/js/details.js"></script>
 </body>
 </html>
